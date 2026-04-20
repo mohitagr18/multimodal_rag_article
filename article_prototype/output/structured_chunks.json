@@ -1,0 +1,140 @@
+[
+  {
+    "text": "Deep Learning for Document Understanding",
+    "chunk_id": "sample_document.pdf_1_0",
+    "page": 1,
+    "element_types": [
+      "document_title"
+    ],
+    "bbox": null,
+    "source_file": "sample_document.pdf",
+    "is_atomic": false,
+    "modality": "text",
+    "image_base64": null,
+    "caption": null
+  },
+  {
+    "text": "Abstract\n\nWe propose a new multimodal document representation pipeline. By preserving physical layout traits such as bounding boxes and parsing structural elements like figures and tables coherently, downstream retrieval tasks are dramatically improved compared to naive text extraction.",
+    "chunk_id": "sample_document.pdf_1_1",
+    "page": 1,
+    "element_types": [
+      "paragraph_title",
+      "paragraph"
+    ],
+    "bbox": null,
+    "source_file": "sample_document.pdf",
+    "is_atomic": false,
+    "modality": "text",
+    "image_base64": null,
+    "caption": null
+  },
+  {
+    "text": "1. Introduction\n\nMost RAG approaches treat documents as a flat sequence of words. This destroys vital context, such as caption linkage to images, tabular column alignment, and visual emphasis. Here, we demonstrate a structure-aware approach.",
+    "chunk_id": "sample_document.pdf_1_2",
+    "page": 1,
+    "element_types": [
+      "paragraph_title",
+      "paragraph"
+    ],
+    "bbox": null,
+    "source_file": "sample_document.pdf",
+    "is_atomic": false,
+    "modality": "text",
+    "image_base64": null,
+    "caption": null
+  },
+  {
+    "text": "2. Proposed Architecture",
+    "chunk_id": "sample_document.pdf_1_3",
+    "page": 1,
+    "element_types": [
+      "paragraph_title"
+    ],
+    "bbox": null,
+    "source_file": "sample_document.pdf",
+    "is_atomic": false,
+    "modality": "text",
+    "image_base64": null,
+    "caption": null
+  },
+  {
+    "text": "Figure 1: Performance comparison of various retrieval architectures.",
+    "chunk_id": "sample_document.pdf_1_4",
+    "page": 1,
+    "element_types": [
+      "figure_title"
+    ],
+    "bbox": null,
+    "source_file": "sample_document.pdf",
+    "is_atomic": false,
+    "modality": "text",
+    "image_base64": null,
+    "caption": null
+  },
+  {
+    "text": "[image]",
+    "chunk_id": "sample_document.pdf_1_5",
+    "page": 1,
+    "element_types": [
+      "image"
+    ],
+    "bbox": [
+      100.0,
+      380.0,
+      500.0,
+      580.0
+    ],
+    "source_file": "sample_document.pdf",
+    "is_atomic": true,
+    "modality": "image",
+    "image_base64": null,
+    "caption": null
+  },
+  {
+    "text": "3. Results",
+    "chunk_id": "sample_document.pdf_1_6",
+    "page": 1,
+    "element_types": [
+      "paragraph_title"
+    ],
+    "bbox": null,
+    "source_file": "sample_document.pdf",
+    "is_atomic": false,
+    "modality": "text",
+    "image_base64": null,
+    "caption": null
+  },
+  {
+    "text": "| Method | F1 Score | Latency (ms) |\n| --- | --- | --- |\n| Naive Text RAG | 65.2 | 150 |\n| Structure-Aware RAG | 82.5 | 350 |\n| Multimodal RAG (Ours) | 94.6 | 800 |",
+    "chunk_id": "sample_document.pdf_1_7",
+    "page": 1,
+    "element_types": [
+      "table"
+    ],
+    "bbox": [
+      100.0,
+      630.0,
+      900.0,
+      730.0
+    ],
+    "source_file": "sample_document.pdf",
+    "is_atomic": true,
+    "modality": "table",
+    "image_base64": null,
+    "caption": null
+  },
+  {
+    "text": "Table 1: Quantitative results on OmniDocBench V1.5.",
+    "chunk_id": "sample_document.pdf_1_8",
+    "page": 1,
+    "element_types": [
+      "paragraph"
+    ],
+    "bbox": null,
+    "source_file": "sample_document.pdf",
+    "is_atomic": false,
+    "modality": "text",
+    "image_base64": null,
+    "caption": null
+  }
+]

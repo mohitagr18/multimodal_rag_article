@@ -1,0 +1,14 @@
+[
+  {
+    "chunk_id": "sample_document.pdf_1_0",
+    "text": "Deep Learning for Document Understanding\n\nAbstract\n\nWe propose a new multimodal document representation pipeline. By preserving physical layout traits\nsuch as bounding boxes and parsing structural elements like figures and tables coherently,\ndownstream retrieval tasks are dramatically improved compared to naive text extraction.\n\n1. Introduction\n\nMost RAG approaches treat documents as a flat sequence of words. This destroys vital context, such\nas caption linkage to images, tabular column alignment, and visual emphasis. Here, we demonstrate a\nstructure-aware approach.\n\n2. Proposed Architecture\n\nFigure 1: Performance comparison of various retrieval architectures.\n\n3. Results\n\nMethod\nF1 Score\nLatency (ms)\n\nNaive Text RAG\n65.2\n150",
+    "modality": "text",
+    "is_atomic": false
+  },
+  {
+    "chunk_id": "sample_document.pdf_2_1",
+    "text": "Structure-Aware RAG\n82.5\n350\n\nMultimodal RAG (Ours)\n94.6\n800\n\nTable 1: Quantitative results on OmniDocBench V1.5.",
+    "modality": "text",
+    "is_atomic": false
+  }
+]
