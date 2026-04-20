@@ -11,4 +11,5 @@ dependencies = [
     "openai>=2.24.0",
     "pytest>=8.0.0",
     "reportlab>=4.0.0",
+    "sentence-transformers>=5.4.1",
 ]

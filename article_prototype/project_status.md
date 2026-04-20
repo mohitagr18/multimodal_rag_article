@@ -17,14 +17,14 @@ Build a minimal, inspectable multimodal RAG prototype that proves document retri
 
 ---
 
-## Phase 2: Multimodal Enrichment & Vector Ingestion (Up Next)
+## Phase 2: Multimodal Enrichment & Vector Ingestion (Completed)
 **Goal:** Prepare the codebase for multimodal enrichment and local vector retrieval.
 
-### Status: `[ ] PENDING`
-* **Image Payload Injection:** Embed base64 image strings within specific chunks (e.g., tables and figures) for storage.
-* **Caption Generation:** Utilize local VLMs (like Qwen2.5-VL or GLM) to generate rich, descriptive captions for extracted images and charts to facilitate semantic search.
-* **Vector Store Integration:** Spin up a local instance of **Qdrant**.
-* **Embedding Generation:** Embed structure-aware chunks and load them into Qdrant collections.
+### Status: `[x] COMPLETED`
+* **Image Payload Injection:** Created `phase2_enrich.py` to crop specific elements using PyMuPDF (`fitz`), embedding the outputs as base64 image strings directly back into the component structures.
+* **Caption Generation:** Prompted local `qwen2.5vl:7b` by sending the embedded payload to Ollama, dynamically generating rich, descriptive captions for extracted images and appending them to the chunk text to facilitate semantic search.
+* **Vector Store Integration:** Scripted `phase3_ingest.py` to instantiate a persistent local instance of **Qdrant** targeting `./qdrant_db`.
+* **Embedding Generation:** Transformed structure-aware chunks into 2304-dimensional vectors via Ollama's `/v1` endpoint mimicking OpenAI compatibility utilizing the `gemma2:2b` embeddings schema, finally upserting payloads and metadata vectors into Qdrant collections flawlessly.
 
 ---
 
@@ -32,6 +32,7 @@ Build a minimal, inspectable multimodal RAG prototype that proves document retri
 **Goal:** Implement the querying logic and demonstrate the effectiveness of the structured representation compared to naive ingestion.
 
 ### Status: `[ ] PENDING`
-* **Query Implementation:** Develop a search interface that queries Qdrant with mixed-mode questions.
-* **Evaluation:** Run comparative benchmarks measuring retrieval quality (F1 Score/Latency) between naive chunking text searches and the structure-aware embeddings.
-* **System Traceability:** Provide output traces to easily inspect retrieved chunks and context windows verifying that layout, charts, and tables map cleanly back to original PDF pages.
+* **Query Implementation:** Develop a two-stage search interface. First, use dense vectors (`gemma2:2b`) to pull the top 20 candidate chunks from Qdrant.
+* **Re-Ranking:** Implement a Cross-Encoder (e.g. using `sentence-transformers` cross-encoder models) to re-rank the top 20 candidates down to the true top 3-5 contexts most relevant to the query.
+* **LLM Synthesis:** Pass the re-ranked structural contexts (including generated VLM captions and layout details) to an LLM to generate the final answer.
+* **Evaluation:** Run comparative benchmarks measuring retrieval quality and evaluate the impact of the reranking stage.
