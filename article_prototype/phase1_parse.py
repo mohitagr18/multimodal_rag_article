@@ -12,7 +12,7 @@ from glmocr import GlmOcr
 from schemas import ParsedElement, ParseResult, PageResult
 from chunker import structure_aware_chunking
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 def naive_baseline(pdf_path: Path):
@@ -87,12 +87,20 @@ class MockGlmOcr:
         res.markdown_result = "mock markdown"
         return res
 
-def structure_aware_pipeline(pdf_path: Path):
+def structure_aware_pipeline(pdf_path: Path, engine: str):
     """
     Extracts structure using PPDocLayout/GLM-OCR and generates multimodal chunk candidates.
     """
-    logger.info("Running Structure-Aware Parsing (mocking glmocr[layout] to avoid ML downloads)...")
-    parser = MockGlmOcr()
+    if engine == "mock":
+        if "sample_document" not in str(pdf_path):
+            logger.warning("Mock engine is hardcoded to sample_document.pdf! Extracting layout incorrectly.")
+        logger.info("Running Structure-Aware Parsing (mocking glmocr to avoid ML downloads)...")
+        parser = MockGlmOcr()
+    else:
+        logger.info("Running Structure-Aware Parsing using the REAL PPDocLayout and GLM models...")
+        # Note: the user must have configured their environment for glmocr local mode.
+        # Passing api_key=None (or omitting it) forces GlmOcr to respect maas.enabled=false in config.yaml
+        parser = GlmOcr(config_path="config.yaml", api_key=None)
 
     # Parse document
     raw_result = parser.parse(str(pdf_path), save_layout_visualization=False)
@@ -133,6 +141,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("pdf", type=Path)
     parser.add_argument("--output-dir", type=Path, default=Path("output"))
+    parser.add_argument("--engine", type=str, choices=["mock", "real"], default="mock",
+                        help="Use 'real' to run PPDocLayout structure detection.")
     args = parser.parse_args()
     
     args.output_dir.mkdir(exist_ok=True)
@@ -143,7 +153,7 @@ def main():
         json.dump(naive_out, f, indent=2)
         
     # 2. Structured
-    structured_out = structure_aware_pipeline(args.pdf)
+    structured_out = structure_aware_pipeline(args.pdf, args.engine)
     with open(args.output_dir / "structured_chunks.json", "w") as f:
         json.dump(structured_out, f, indent=2)
         

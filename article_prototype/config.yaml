@@ -1,0 +1,54 @@
+logging:
+  level: DEBUG
+
+pipeline:
+  maas:
+    enabled: false          # Explicitly disable Z.AI cloud API to prevent the API key error
+
+  ocr_api:
+    api_host: localhost
+    api_port: 11434
+    api_path: /v1/chat/completions
+    model: glm-ocr:latest
+    api_mode: openai
+
+  enable_layout: true         # Enable PP-DocLayout-V3 local detection
+  region_maxsize: 0
+
+  layout:
+    model_dir: PaddlePaddle/PP-DocLayoutV3_safetensors
+    id2label: null
+
+    label_task_mapping:
+      ocr:
+        - abstract
+        - aside_text
+        - content
+        - doc_title
+        - figure_title
+        - footnote
+        - paragraph_title
+        - reference
+        - reference_content
+        - text
+        - vision_footnote
+        - chart
+        - image
+        - seal
+      table:
+        - table
+      formula:
+        - formula
+      algorithm:
+        - algorithm
+      abandon:
+        - header
+        - footer
+        - formula_number
+        - number
+
+  result_formatter:
+    output_format: both
+
+  page_loader:
+    max_tokens: 8192
