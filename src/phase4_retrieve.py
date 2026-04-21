@@ -1,11 +1,13 @@
-import os
 import yaml
+from pathlib import Path
 from openai import OpenAI
 from qdrant_client import QdrantClient
 from sentence_transformers import CrossEncoder
+import warnings
 
-# Load configuration
-with open("config.yaml", "r") as f:
+warnings.filterwarnings("ignore")
+
+with open(Path(__file__).parent / "config.yaml") as f:
     config = yaml.safe_load(f)
 
 OLLAMA_BASE_URL = "http://localhost:11434/v1"
@@ -14,15 +16,9 @@ LLM_MODEL = config["models"]["llm"]
 CROSS_ENCODER_MODEL = config["models"]["cross_encoder"]
 COLLECTION_NAME = "article_chunks"
 
-# 1. Initialize Clients
-print("Loading clients and models... (This may take a moment for Cross-Encoder)")
-qdrant = QdrantClient(path="qdrant_db")
+qdrant_path = config.get("qdrant", {}).get("path", "qdrant_db")
+qdrant = QdrantClient(path=qdrant_path)
 openai_client = OpenAI(base_url=OLLAMA_BASE_URL, api_key="ollama")
-
-import warnings
-
-warnings.filterwarnings("ignore")
-
 cross_encoder = CrossEncoder(CROSS_ENCODER_MODEL, max_length=512)
 
 
@@ -32,19 +28,14 @@ def embed_text(text: str) -> list[float]:
 
 
 def generate_answer(query: str, contexts: list[dict]) -> str:
-    # Build context blocks detailing the modality and text
     context_str = ""
     for i, ctx in enumerate(contexts):
-        modality_badge = (
-            f"[{ctx['modality'].upper()}]" if "modality" in ctx else "[TEXT]"
-        )
+        modality_badge = f"[{ctx['modality'].upper()}]" if "modality" in ctx else "[TEXT]"
         page = ctx.get("page", "?")
-        context_str += (
-            f"--- Chunk {i + 1} (Page {page}) {modality_badge} ---\n{ctx['text']}\n\n"
-        )
+        context_str += f"--- Chunk {i + 1} (Page {page}) {modality_badge} ---\n{ctx['text']}\n\n"
 
     prompt = f"""You are an advanced AI assistant powered by Multimodal Structural RAG.
-Use the provided context chunks optimally to answer the user's question. Take into account that some chunks are textual descriptions generated directly from images, diagrams, or tables extracted structurally from the source PDF.
+Use the provided context chunks optimally to answer the user's question.
 
 Context:
 {context_str}
@@ -75,7 +66,6 @@ def interactive_search():
 
             print("\n1. Dense Retrieval (Fetching top 20 candidates)...")
             q_emb = embed_text(query)
-            # Stage 1: Fast Vector Search
             results = qdrant.search(
                 collection_name=COLLECTION_NAME, query_vector=q_emb, limit=20
             )
@@ -84,7 +74,6 @@ def interactive_search():
                 print("No results found in Qdrant.")
                 continue
 
-            # Modality Boosting: Boost image chunks for visual queries
             visual_keywords = {"diagram", "flowchart", "figure", "image", "chart", "visual", "illustration", "picture", "encoder", "decoder"}
             query_words = set(query.lower().split())
             is_visual_query = bool(query_words & visual_keywords)
@@ -92,47 +81,30 @@ def interactive_search():
                 print("   [Visual query detected - boosting image modality]")
                 for hit in results:
                     if hit.payload.get("modality") == "image":
-                        hit.score *= 1.35  # 35% boost for visual queries
+                        hit.score *= 1.35
 
-            # Stage 2: Cross-Encoder Reranking (skip for visual queries - boosting works better)
             if is_visual_query:
                 print("   Skipping cross-encoder for visual query (boosting sufficient)")
             else:
-                print(
-                    f"2. Re-Ranking (Scoring {len(results)} candidates against the query)..."
-                )
-                # Pair each chunk text with the user query
+                print(f"2. Re-Ranking ({len(results)} candidates)...")
                 pairs = [[query, hit.payload.get("text", "")] for hit in results]
-
-                # Predict scores
                 scores = cross_encoder.predict(pairs)
-
-                # Reattach scores to results and sort
                 for hit, score in zip(results, scores):
-                    hit.score = float(
-                        score
-                    )  # Overwrite dense cosine score with Cross-Encoder score
-
-                # Sort by new Cross-Encoder score descending
+                    hit.score = float(score)
                 results.sort(key=lambda x: x.score, reverse=True)
 
-            # Take top 4
             top_k = 4
             best_hits = results[:top_k]
 
-            print(f"\n=> Top {top_k} structurally-aware chunks isolated!")
+            print(f"\n=> Top {top_k} chunks isolated!")
             for i, hit in enumerate(best_hits):
                 modality = hit.payload.get("modality", "text")
-                print(
-                    f"  {i + 1}. [Score: {hit.score:.2f}] (Type: {modality}, Page: {hit.payload.get('page')}) -> {hit.payload.get('text')[:60]}..."
-                )
+                print(f"  {i + 1}. [Score: {hit.score:.2f}] ({modality}, Page {hit.payload.get('page')}) -> {hit.payload.get('text')[:60]}...")
 
             print("\n3. Synthesizing Answer with LLM...")
             answer = generate_answer(query, [h.payload for h in best_hits])
 
-            print(
-                f"\n========== ANSWER ==========\n{answer}\n============================"
-            )
+            print(f"\n========== ANSWER ==========\n{answer}\n============================")
 
         except KeyboardInterrupt:
             break

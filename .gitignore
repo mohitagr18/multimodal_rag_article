@@ -213,4 +213,11 @@ reference_repo/
 # Qdrant local vector database
 qdrant_db/
 
+# Project data directories
+input/
+results/
+
+# Test input file
+test.pdf
+
 .DS_Store

@@ -47,7 +47,7 @@ def structure_aware_chunking(elements: List[ParsedElement], source_file: str, pa
             chunk_id=f"{source_file}_{page}_{chunk_idx}",
             page=page,
             element_types=labels,
-            bbox=None,  # typically None for multi-element text chunks
+            bbox=None,
             source_file=source_file,
             is_atomic=False,
             modality=infer_modality(labels)

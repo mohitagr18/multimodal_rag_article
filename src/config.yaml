@@ -3,7 +3,7 @@ logging:
 
 pipeline:
   maas:
-    enabled: false # Explicitly disable Z.AI cloud API to prevent the API key error
+    enabled: false
 
   ocr_api:
     api_host: localhost
@@ -12,7 +12,7 @@ pipeline:
     model: glm-ocr:latest
     api_mode: openai
 
-  enable_layout: true # Enable PP-DocLayout-V3 local detection
+  enable_layout: true
   region_maxsize: 0
 
   layout:
@@ -54,7 +54,14 @@ pipeline:
     max_tokens: 8192
 
 models:
-  embedding: "qwen3-embedding:4b" # Embedding model for vector search
-  llm: "qwen2.5vl:7b" # Language model for answer generation
-  vlm: "qwen2.5vl:7b" # Vision Language Model for image captioning
-  cross_encoder: "cross-encoder/ms-marco-MiniLM-L-12-v2"  # Cross-encoder for re-ranking
+  embedding: "qwen3-embedding:4b"
+  llm: "qwen2.5vl:7b"
+  vlm: "qwen2.5vl:7b"
+  cross_encoder: "cross-encoder/ms-marco-MiniLM-L-12-v2"
+
+qdrant:
+  path: "qdrant_db"
+
+directories:
+  input: "input"
+  results: "results"
