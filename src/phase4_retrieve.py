@@ -107,7 +107,10 @@ def interactive_search():
             print(f"\n========== ANSWER ==========\n{answer}\n============================")
 
         except KeyboardInterrupt:
-            break
+                break
+        finally:
+            qdrant.close()
+            openai_client.close()
 
 
 if __name__ == "__main__":

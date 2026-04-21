@@ -49,7 +49,7 @@ def main():
 
     if not input_file.exists():
         print(f"Input file {input_file} not found.")
-        return
+        raise SystemExit(1)
 
     with open(input_file, "r") as f:
         chunks = json.load(f)

@@ -24,7 +24,7 @@ def main():
     input_file = RESULTS_DIR / "enriched_chunks.json"
     if not input_file.exists():
         print(f"File {input_file} not found. Run phase2_enrich.py first.")
-        return
+        raise SystemExit(1)
 
     with open(input_file, "r") as f:
         chunks = json.load(f)
@@ -77,6 +77,7 @@ def main():
 
     qdrant.upsert(collection_name=COLLECTION_NAME, points=points)
     print(f"Successfully ingested {len(points)} chunks into Qdrant index '{COLLECTION_NAME}'.")
+    return qdrant, openai_client
 
 
 if __name__ == "__main__":

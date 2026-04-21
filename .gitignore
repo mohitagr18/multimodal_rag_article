@@ -210,14 +210,10 @@ __marimo__/
 # Reference
 reference_repo/
 
+# Local virtual environment
+.venv/
+
 # Qdrant local vector database
-qdrant_db/
-
-# Project data directories
-input/
-results/
-
-# Test input file
-test.pdf
+.qdrant/
 
 .DS_Store

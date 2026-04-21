@@ -5,12 +5,10 @@ Test script to run the 5 standard queries with FULL pipeline.
 import yaml
 import json
 from pathlib import Path
-import sys
 import warnings
 warnings.filterwarnings('ignore')
 
 PROJECT_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 with open(PROJECT_ROOT / "src" / "config.yaml") as f:
     config = yaml.safe_load(f)
@@ -135,3 +133,4 @@ with open(RESULTS_DIR / 'TEST_RESULTS.md', 'w') as f:
 print(f'Markdown saved to {RESULTS_DIR / "TEST_RESULTS.md"}')
 
 qdrant.close()
+openai_client.close()

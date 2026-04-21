@@ -1,7 +1,7 @@
 [project]
-name = "multimodal-rag"
+name = "article-prototype"
 version = "0.1.0"
-description = "Structure-aware multimodal RAG pipeline"
+description = "Minimal multimodal RAG prototype for the article"
 requires-python = ">=3.12"
 dependencies = [
     "glmocr[layout]>=0.1.0",

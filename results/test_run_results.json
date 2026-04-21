@@ -1,0 +1,212 @@
+[
+  {
+    "query_modality": "table",
+    "query": "What are the different model complexities and their per-layer complexity scores?",
+    "top_chunks": [
+      {
+        "rank": 1,
+        "chunk_id": "test.pdf_2_1",
+        "modality": "table",
+        "page": 2,
+        "score": 2.465
+      },
+      {
+        "rank": 2,
+        "chunk_id": "test.pdf_2_0",
+        "modality": "text",
+        "page": 2,
+        "score": -0.145
+      },
+      {
+        "rank": 3,
+        "chunk_id": "test.pdf_2_6",
+        "modality": "text",
+        "page": 2,
+        "score": -5.75
+      },
+      {
+        "rank": 4,
+        "chunk_id": "test.pdf_1_0",
+        "modality": "image",
+        "page": 1,
+        "score": -7.062
+      },
+      {
+        "rank": 5,
+        "chunk_id": "test.pdf_3_2",
+        "modality": "text",
+        "page": 3,
+        "score": -8.084
+      }
+    ],
+    "answer": "The different model complexities and their per-layer complexity scores are as follows:\n\n1. **Self-Attention**:\n   - **Per Layer Complexity**: $O(n^2 \\cdot d)$  \n   - **Sequential Operations**: $O(1)$\n   - **Maximum Path Length**: $O(1)$\n   - Complexity per layer is restricted to $O(r \\cdot n \\cdot d)$ for restricted self-attention, and $O(k \\cdot n \\cdot d^2)$ for convolutional-based attention.\n\n2. **Recurrent Neural Network (RNN)**:\n   - **Per Layer Complexity**: $O(n \\cdot d^2)$\n   - **Sequential Operations**: $O(1)$\n   - **Maximum Path Length**: $O(n)$\n\n3. **Convolutional Neural Network (CNN)**:\n   - **Per Layer Complexity**: $O(n)$\n   - **Sequential Operations**: $O(1)$\n   - **Maximum Path Length**: $O(1)$\n\nFor example, a self-attention layer has a per-layer complexity of $O(n^2 \\cdot d)$, sequential operations require a constant amount $O(1)$, and the maximum path length required by the layer is also a constant $O(1)$. The complexity per layer is $O(r \\cdot n \\cdot d)$ if the self-attention is restricted, and $O(k \\cdot n \\cdot d^2)$ if the attention is convolutional-based."
+  },
+  {
+    "query_modality": "table",
+    "query": "Which model has the lowest training cost and what is its BLEU score?",
+    "top_chunks": [
+      {
+        "rank": 1,
+        "chunk_id": "test.pdf_3_1",
+        "modality": "table",
+        "page": 3,
+        "score": 8.189
+      },
+      {
+        "rank": 2,
+        "chunk_id": "test.pdf_3_0",
+        "modality": "text",
+        "page": 3,
+        "score": 5.317
+      },
+      {
+        "rank": 3,
+        "chunk_id": "test.pdf_3_4",
+        "modality": "text",
+        "page": 3,
+        "score": 4.202
+      },
+      {
+        "rank": 4,
+        "chunk_id": "test.pdf_3_2",
+        "modality": "text",
+        "page": 3,
+        "score": -3.255
+      },
+      {
+        "rank": 5,
+        "chunk_id": "test.pdf_3_3",
+        "modality": "text",
+        "page": 3,
+        "score": -10.596
+      }
+    ],
+    "answer": "The model with the lowest training cost is Transformer (base model), and its BLEU score is not directly stated in the provided context. However, it does surpass all previously published models and ensembles in performance at a fraction of the training cost that competitive models require. Specifically, on the WMT 2014 English-to-German translation task, the big transformer model (Transformer (big)) achieves a BLEU score more than 2.0 points higher than previous state-of-the-art models, thus establishing a new state-of-the-art BLEU score of 28.4.\n\nThe context does not provide individual BLEU scores for all models; it only compares the overall translation performance based on BLEU score improvements. Therefore, the BLEU score for the Transformer (base model) is inferred from its superior performance."
+  },
+  {
+    "query_modality": "image",
+    "query": "What does the architecture diagram show?",
+    "top_chunks": [
+      {
+        "rank": 1,
+        "chunk_id": "test.pdf_1_0",
+        "modality": "image",
+        "page": 1,
+        "score": 0.586
+      },
+      {
+        "rank": 2,
+        "chunk_id": "test.pdf_1_1",
+        "modality": "text",
+        "page": 1,
+        "score": 0.5
+      },
+      {
+        "rank": 3,
+        "chunk_id": "test.pdf_3_3",
+        "modality": "text",
+        "page": 3,
+        "score": 0.444
+      },
+      {
+        "rank": 4,
+        "chunk_id": "test.pdf_2_0",
+        "modality": "text",
+        "page": 2,
+        "score": 0.366
+      },
+      {
+        "rank": 5,
+        "chunk_id": "test.pdf_2_1",
+        "modality": "table",
+        "page": 2,
+        "score": 0.344
+      }
+    ],
+    "answer": "The architecture diagram shows the processing flow of input data through a transformer model, which is a type of neural network commonly used in natural language processing. The diagram illustrates the architecture's structure and the data processing steps involved in both the encoder and decoder components of the transformer.\n\n- **Encoder**: Takes input sequences and processes them through multiple layers. Each layer has:\n  - A multi-head attention mechanism that can focus on different parts of the input sequence simultaneously.\n  - A feed-forward neural network applied to the output of the attention mechanism.\n  - The output is normalized using an \"Add & Norm\" step before moving to the next layer.\n\n- **Decoder**: Takes the output of the encoder and generates a sequence of outputs. Similar to the encoder, it also uses multiple layers:\n  - Contains a multi-head attention mechanism with a masked version to ensure that the decoder does not attend to future tokens.\n  - Applies a feed-forward neural network.\n  - The output is similarly normalized and processed through \"Add & Norm,\" \"Feed Forward,\" and \"Multi-Head Attention\" steps.\n\nThe diagram also underscores the importance of positional encoding to account for the order of elements in the sequence, which is essential for tasks such as machine translation and text generation."
+  },
+  {
+    "query_modality": "image",
+    "query": "Describe the encoder and decoder blocks in the flowchart",
+    "top_chunks": [
+      {
+        "rank": 1,
+        "chunk_id": "test.pdf_1_0",
+        "modality": "image",
+        "page": 1,
+        "score": 0.772
+      },
+      {
+        "rank": 2,
+        "chunk_id": "test.pdf_1_1",
+        "modality": "text",
+        "page": 1,
+        "score": 0.56
+      },
+      {
+        "rank": 3,
+        "chunk_id": "test.pdf_1_2",
+        "modality": "text",
+        "page": 1,
+        "score": 0.519
+      },
+      {
+        "rank": 4,
+        "chunk_id": "test.pdf_3_0",
+        "modality": "text",
+        "page": 3,
+        "score": 0.457
+      },
+      {
+        "rank": 5,
+        "chunk_id": "test.pdf_2_0",
+        "modality": "text",
+        "page": 2,
+        "score": 0.414
+      }
+    ],
+    "answer": "The encoder and decoder blocks in the flowchart described in the context are part of the underlying architecture of the Transformer model, which is a type of neural network commonly used in natural language processing (NLP). Here is a breakdown:\n\n### Encoder:\n\n1. **Input Data**:\n   - The encoder takes input sequences of data.\n\n2. **Positional Encoding**:\n   - The input data is passed through a \"Positional Encoding\" step (not explicitly labeled in the flowchart but implied by the text from the context).\n\n3. **Add & Norm**:\n   - The input data and the positional encoding are summed and followed by layer normalization.\n\n4. **Feed Forward**:\n   - The data is processed by a \"Feed Forward\" step, which applies a densely connected neural network followed by another layer normalization.\n\n5. **Multi-Head Attention**:\n   - The output of the feed-forward step is then passed through a \"Multi-Head Attention\" mechanism, which allows the model to focus on different parts of the input sequence simultaneously.\n\n6. **Softmax**:\n   - The output of the multi-head attention layer is passed through a \"Softmax\" step to convert the multi-head attention scores into probability distributions.\n\n7. **Output Process**:\n   - The output is linearized and normalized (again through \"LayerNorm\" in the context provided) before being passed into the next layer.\n\n### Decoder:\n\n1. **Input Data and Encoder Output**:\n   - The decoder takes the output of the encoder and generates a sequence of outputs.\n\n2. **Positional Encoding**:\n   - The input data and the encoder output are processed by a positional encoding step similar to what happens in the encoder.\n\n3. **Add & Norm**:\n   - Same as the encoder, the positional encoding and the feed-forward processing result are summed and followed by layer normalization.\n\n4. **Feed Forward**:\n   - The data is fed into a \"Feed Forward\" step. This step involves a dense connection neural network and another layer normalization.\n\n5. **Multi-Head Attention**:\n   - The output of the feed-forward step is then passed through another \"Multi-Head Attention\" mechanism similar to the encoder but with the addition of a \"Masked Multi-Head Attention\" layer, which ensures the decoder does not attend to future tokens in the input sequence.\n\n6. **Masked Multi-Head Attention**:\n   - The masked multi-head attention layer uses the position embeddings to mask future tokens so that the decoder layer attends only to previously generated tokens.\n\n7. **Output Embedding**:\n   - The output of the masked multi-head attention layer is then processed through an \"Output Embedding\" step, which may further adjust the output for the next time step.\n\n8. **Final Output**:\n   - The output is processed through another normalization and linearized to produce the final output, which is likely in the form of probabilities for the next token in the sequence of outputs.\n\nThe arrows in the flowchart indicate the direction of data flow between these steps. The flowchart highlights the use of residual connections with layer normalization at each sub-step to facilitate the training of deep neural networks."
+  },
+  {
+    "query_modality": "text",
+    "query": "Explain the attention mechanism and how it differs from RNNs",
+    "top_chunks": [
+      {
+        "rank": 1,
+        "chunk_id": "test.pdf_1_0",
+        "modality": "image",
+        "page": 1,
+        "score": -1.004
+      },
+      {
+        "rank": 2,
+        "chunk_id": "test.pdf_1_3",
+        "modality": "text",
+        "page": 1,
+        "score": -2.825
+      },
+      {
+        "rank": 3,
+        "chunk_id": "test.pdf_1_2",
+        "modality": "text",
+        "page": 1,
+        "score": -5.129
+      },
+      {
+        "rank": 4,
+        "chunk_id": "test.pdf_2_6",
+        "modality": "text",
+        "page": 2,
+        "score": -5.816
+      },
+      {
+        "rank": 5,
+        "chunk_id": "test.pdf_2_1",
+        "modality": "table",
+        "page": 2,
+        "score": -10.166
+      }
+    ],
+    "answer": "The attention mechanism in neural networks, such as those used in transformers, is a method for establishing \"context\" during the processing of a sequence of inputs. In contrast to recurrent neural networks (RNNs), which process the sequence sequentially and retain an internal state that captures information from previous inputs, the attention mechanism focuses on different parts of the input sequence simultaneously, allowing it to consider dependencies between elements in the context of the entire sequence.\n\n### Key Points about the Attention Mechanism:\n\n1. **Computation Across All Elements**: Unlike RNNs, which use a single, persistent state that updates with each step in the sequence, attention models compute a weighted sum over all elements in the input sequence. This allows it to incorporate information from multiple parts of the input at once.\n\n2. **Weighting Mechanism**: The attention mechanism computes weights or scores for each element in the input sequence, which reflects their importance for the current element being processed. These weights are typically learned parameters that the model uses to focus on relevant parts of the input.\n\n3. **Contextual Awareness**: The weighted summation process generates a context vector that incorporates the entire sequence, making the model aware of the relationships and associations between all parts of the input. This is particularly useful in tasks like machine translation, where the model needs to understand the relationships between words in the source and target sentences.\n\n### Comparison with RNNs:\n\n1. **Sequential Processing vs. Parallel Processing**: RNNs process the sequence in a strictly sequential manner, where the state at each time step depends on the previous state. In contrast, attention models can process all elements of the input simultaneously or sequentially, with the weights learned to focus on the relevant parts.\n\n2. **Memory Management**: Both RNNs and attention models can be optimized for memory usage; however, attention models do not retain a state that spans the entire sequence, which can be seen as an advantage for models like recurrent networks. This is because attention models focus on generating a context vector based on the entire input at once, not by maintaining a running state that accumulates information over the sequence.\n\n3. **Efficiency for Long Sequences**: Attention models can be more efficient for long sequences compared to RNNs, especially when the context across the entire sequence is needed. RNNs, while good at context, have a fixed \"temporal window\" based on memory and can be slow to train and evaluate for particularly long sequences.\n\n### Conclusion:\n\nIn summary, the attention mechanism enables models to weight and merge information from different parts of the input sequence, improving the model\u2019s ability to learn and express long-range dependencies. By focusing attention sequentially or concurrently on various parts of the input, attention models can outperform traditional RNNs in tasks that require understanding complex relationships between input elements. However, RNNs remain powerful for tasks where the order of the sequence is crucial due to their implicit memory and ability to process the sequence in a fixed, sequential manner."
+  }
+]

@@ -143,7 +143,7 @@ def main():
             logger.info(f"Using input directory: {args.pdf}")
         else:
             logger.error(f"PDF file not found: {args.pdf}")
-            return
+            raise SystemExit(1)
     
     args.output_dir.mkdir(exist_ok=True)
     
