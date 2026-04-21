@@ -1,0 +1,70 @@
+{
+  "queries": {
+    "query_1": "What does the flowchart in the document illustrate?",
+    "query_2": "How is positional encoding used in the architecture?",
+    "query_3": "What is the difference between the left and right sections of the flowchart?",
+    "query_4": "Explain the multi-head attention mechanism steps",
+    "query_5": "What comes after the softmax step in the processing?"
+  },
+  "ground_truth": {
+    "query_1": [
+      "test.pdf_1_0"
+    ],
+    "query_2": [
+      "test.pdf_1_0"
+    ],
+    "query_3": [
+      "test.pdf_1_0"
+    ],
+    "query_4": [
+      "test.pdf_1_0"
+    ],
+    "query_5": [
+      "test.pdf_1_0"
+    ]
+  },
+  "results": {
+    "naive": {
+      "precision@1": 0.2,
+      "recall@1": 0.2,
+      "precision@3": 0.26666666666666666,
+      "recall@3": 0.8,
+      "precision@5": 0.2,
+      "recall@5": 1.0,
+      "mrr": 0.47333333333333333,
+      "map": 0.47333333333333333,
+      "ndcg@5": 0.7385072130432617,
+      "ndcg@10": 0.7385072130432617
+    },
+    "structured": {
+      "precision@1": 0.2,
+      "recall@1": 0.2,
+      "precision@3": 0.06666666666666667,
+      "recall@3": 0.2,
+      "precision@5": 0.12000000000000002,
+      "recall@5": 0.6,
+      "mrr": 0.29,
+      "map": 0.29,
+      "ndcg@5": 0.3861353116146786,
+      "ndcg@10": 0.3861353116146786
+    },
+    "enriched": {
+      "precision@1": 0.0,
+      "recall@1": 0.0,
+      "precision@3": 0.0,
+      "recall@3": 0.0,
+      "precision@5": 0.0,
+      "recall@5": 0.0,
+      "mrr": 0.0,
+      "map": 0.0,
+      "ndcg@5": 0.0,
+      "ndcg@10": 0.0
+    }
+  },
+  "metadata": {
+    "naive_chunks": 5,
+    "structured_chunks": 17,
+    "enriched_chunks": 17,
+    "eval_timestamp": "1776729339.1877034"
+  }
+}

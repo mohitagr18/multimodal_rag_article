@@ -52,3 +52,9 @@ pipeline:
 
   page_loader:
     max_tokens: 8192
+
+models:
+  embedding: "gemma2:2b"      # Embedding model for vector search
+  llm: "gemma2:2b"            # Language model for answer generation
+  vlm: "qwen2.5vl:7b"        # Vision Language Model for image captioning
+  cross_encoder: "cross-encoder/ms-marco-MiniLM-L-6-v2"  # Cross-encoder for re-ranking
