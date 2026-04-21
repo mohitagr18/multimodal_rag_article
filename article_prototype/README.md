@@ -9,21 +9,63 @@ This prototype demonstrates how preserving document structure (element types, bo
 1. **Parses** PDFs with structure awareness (tables, images, formulas preserved)
 2. **Enriches** with VLM-generated image captions
 3. **Ingests** into a vector database (Qdrant)
-4. **Retrieves** with modality boosting for visual queries
+4. **Retrieves** with modality boosting + cross-encoder reranking
 
 ```mermaid
 flowchart TB
-    PDF[PDF Document] --> P1[Phase 1: Parse]
-    P1 --> P2[Phase 2: Enrich]
-    P2 --> P3[Phase 3: Ingest]
-    P3 --> P4[Phase 4: Retrieve]
-    P4 --> Answer[Final Answer]
+    subgraph Input["INPUT"]
+        PDF[PDF Document]
+    end
+
+    subgraph Phase1["PHASE 1: Parse"]
+        P1A[PP-DocLayout V3]
+        P1B[GLM-OCR]
+        P1C[Element Classification]
+        P1D[Structure-Aware Chunking]
+    end
+
+    subgraph Phase2["PHASE 2: Enrich"]
+        P2A[Extract Images/Tables]
+        P2B[PyMuPDF Crop]
+        P2C[VLM Captioning]
+        P2D[Base64 Encoding]
+    end
+
+    subgraph Phase3["PHASE 3: Ingest"]
+        P3A[Ollama Embedding]
+        P3B[Vector Creation]
+        P3C[Qdrant Storage]
+    end
+
+    subgraph Phase4["PHASE 4: Retrieve"]
+        P4A[Query Embedding]
+        P4B[Dense Search]
+        P4C[Modality Boosting]
+        P4D[Cross-Encoder Rerank]
+        P4E[LLM Synthesis]
+    end
+
+    Output[Final Answer]
+
+    PDF --> P1A
+    P1A --> P1B
+    P1B --> P1C
+    P1C --> P1D
+    P1D --> Phase2
     
-    style PDF fill:#e1f5fe
-    style P1 fill:#fff3e0
-    style P2 fill:#e8f5e9
-    style P3 fill:#f3e5f5
-    style P4 fill:#fffde7
+    Phase2 --> P3A
+    P3A --> P3B
+    P3B --> P3C
+    P3C --> Phase4
+    
+    Phase4 --> Output
+
+    style Input fill:#e1f5fe
+    style Phase1 fill:#fff3e0
+    style Phase2 fill:#e8f5e9
+    style Phase3 fill:#f3e5f5
+    style Phase4 fill:#fffde7
+    style Output fill:#e0f7fa
 ```
 
 ---
@@ -47,7 +89,7 @@ flowchart TB
 
 ### 4. Cross-Encoder Reranking
 - Two-stage retrieval: dense search → cross-encoder reranking
-- Uses ms-marco-MiniLM-L-6-v2 for relevance scoring
+- Uses ms-marco-MiniLM-L-12-v2 for relevance scoring
 - Improves precision from top-20 to top-4
 - **Note**: Skipped for visual queries (modality boosting alone works better)
 
@@ -58,62 +100,35 @@ flowchart TB
 
 ---
 
-## Architecture
+## System Components
 
-### System Components
+### Pipeline Components
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     MULTIMODAL RAG PIPELINE                        │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌───────────┐ │
-│  │   Phase   │    │   Phase   │    │   Phase   │    │  Phase   │ │
-│  │    1     │───▶│    2      │───▶│    3      │───▶│    4     │ │
-│  │  (Parse)  │    │ (Enrich)  │    │ (Ingest)  │    │(Retrieve)│ │
-│  └─────────────┘    └─────────────┘    └─────────────┘    └───────────┘ │
-│        │              │              │              │              │             │
-│        ▼              ▼              ▼              ▼              ▼             │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────┐ │
-│  │structured│  │ enriched│  │ Qdrant  │  │  Dense  │  │ Answer │ │
-│  │ chunks  │  │ chunks  │  │  DB     │  │ Search  │  │       │ │
-│  └────────┘  └──────────┘  └──────────┘  └──────────┘  └────────┘ │
-│                                                                 │
-├─────────────────────────────────────────────────────────────────┤
-│                       MODELS                                     │
-│  ┌──────────────┐ ┌────────────┐ ┌──────────┐ ┌──────────┐ │
-│  │ Embedding    │ │    LLM    │ │   VLM    │ │Cross-Encd │ │
-│  │qwen3-embed│ │qwen2.5vl │ │qwen2.5vl │ │ ms-marco │ │
-│  │    :4b    │ │   :7b    │ │   :7b    │ │ MiniLM  │ │
-│  └──────────────┘ └────────────┘ └──────────┘ └──────────┘ │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Component | File | Description |
+|----------|------|-------------|
+| PDF Parser | `phase1_parse.py` | Extracts structure using PP-DocLayout + GLM-OCR |
+| Enricher | `phase2_enrich.py` | Generates VLM captions for images |
+| Ingestor | `phase3_ingest.py` | Embeds chunks to Qdrant |
+| Retriever | `phase4_retrieve.py` | Query with dense + reranking |
+| Test Runner | `run_test_queries.py` | Runs standard test queries |
+| All-in-One | `run_all.py` | Runs full pipeline |
 
-### Data Flow
+### Models
 
-```
-PDF Input
-    │
-    ├── Phase 1: Parse
-    │   ├── Naive: fitz.extract_text() → flat chunks (lost: structure)
-    │   └── Structure-Aware: PP-DocLayout + GLM-OCR → structured chunks
-    │       ├── Image: modality=image, bbox preserved
-    │       ├── Table: modality=table, content preserved
-    │       └── Formula: modality=formula, LaTeX preserved
-    │
-    ├── Phase 2: Enrich
-    │   └── For images: PyMuPDF crop → base64 → VLM caption → enriched text
-    │
-    ├── Phase 3: Ingest
-    │   └── Each chunk → Ollama embed → Qdrant point (vector + metadata)
-    │
-    └── Phase 4: Retrieve
-        ├── Query → embed
-        ├── Dense search (top 20)
-        ├── Modality boost (visual queries ×1.35)
-        ├── Cross-encoder rerank (top 4)
-        └── LLM synthesize → answer
-```
+| Model | Type | Purpose |
+|-------|------|---------|
+| qwen3-embedding:4b | Embedding | Vector search (2560-dim) |
+| qwen2.5vl:7b | LLM + VLM | Answer generation + image captions |
+| ms-marco-MiniLM-L-12-v2 | Cross-Encoder | Relevance reranking |
+| PP-DocLayout-V3 | Layout Detection | Document structure detection |
+| GLM-OCR | OCR | Text recognition |
+
+### Data Schemas
+
+| Schema | File | Fields |
+|--------|------|---------|
+| ParsedElement | `schemas.py` | label, text, bbox, score, reading_order |
+| Chunk | `schemas.py` | text, chunk_id, page, modality, image_base64, caption |
 
 ---
 
@@ -155,15 +170,16 @@ uv sync
 ```
 article_prototype/
 ├── config.yaml              # Single source of truth for models
-├── phase1_parse.py       # PDF parsing
-├── phase2_enrich.py     # Image captioning
-├── phase3_ingest.py    # Vector ingestion
+├── phase1_parse.py       # PDF parsing (PP-DocLayout + GLM-OCR)
+├── phase2_enrich.py      # VLM image captioning
+├── phase3_ingest.py     # Qdrant vector ingestion
 ├── phase4_retrieve.py  # Retrieval + synthesis
-├── run_test_queries.py # Test script
-├── schemas.py          # Data models
-├── chunker.py        # Chunking logic
-├── qdrant_db/        # Local vector DB
-└── output/          # Intermediate files
+├── run_all.py           # Run full pipeline
+├── run_test_queries.py # Run test queries
+├── schemas.py           # Data models
+├── chunker.py           # Chunking logic
+├── qdrant_db/          # Local vector database
+└── output/              # Intermediate files
     ├── structured_chunks.json
     └── enriched_chunks.json
 ```
@@ -186,28 +202,32 @@ models:
   vlm: "qwen2.5vl:7b"
   
   # Cross-encoder for reranking
-  cross_encoder: "cross-encoder/ms-marco-MiniLM-L-6-v2"
+  cross_encoder: "cross-encoder/ms-marco-MiniLM-L-12-v2"
 ```
-
-### Model Options
-
-| Component | Recommended Models | Notes |
-|----------|--------------|-------|
-| Embedding | `qwen3-embedding:4b`, `gemma2:2b` | Local embeddings |
-| LLM | `qwen2.5vl:7b`, `gemma2:2b` | Answer generation |
-| VLM | `qwen2.5vl:7b` | Image captioning |
-| Cross-encoder | `ms-marco-MiniLM-L-6-v2` | Default reranker |
 
 ---
 
 ## Usage
 
-### Running the Pipeline
-
-#### Phase 1: Parse PDF
+### Option 1: Run All-in-One Script (Recommended)
 
 ```bash
-python phase1_parse.py test.pdf --engine mock
+# Full pipeline + test queries
+python run_all.py
+
+# Just test queries (if data already exists)
+python run_all.py --test-only
+
+# Interactive retrieval mode
+python phase4_retrieve.py
+```
+
+### Option 2: Run Individual Phases
+
+#### Phase 1: Parse PDF (Real Engine)
+
+```bash
+python phase1_parse.py test.pdf --engine real
 ```
 
 Outputs:
@@ -237,14 +257,6 @@ python phase4_retrieve.py
 ```
 
 Then enter queries interactively.
-
-### Running Test Queries
-
-```bash
-python run_test_queries.py
-```
-
-Runs the 5 standard queries and updates `TEST_RESULTS.md`.
 
 ---
 
@@ -280,12 +292,6 @@ if set(query.lower().split()) & visual_keywords:
 |-------|--------|----------------|
 | "What does the architecture diagram show?" | IMAGE #7 (0.837) | **IMAGE #1 (1.133)** |
 | "Describe encoder/decoder in flowchart" | IMAGE #12 (0.665) | **IMAGE #1 (0.897)** |
-
-### Why 35%?
-
-- Images initially ranked #7-#12 (0.665-0.837)
-- Text chunks at #1 (0.852)
-- Boost ×1.35 pushes images above text while maintaining ranking
 
 ---
 

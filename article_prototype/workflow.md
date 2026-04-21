@@ -365,7 +365,7 @@ models:
   embedding: "qwen3-embedding:4b"  # Vector embeddings
   llm: "qwen2.5vl:7b"              # Answer generation
   vlm: "qwen2.5vl:7b"              # Image captioning
-  cross_encoder: "cross-encoder/ms-marco-MiniLM-L-6-v2"  # Re-ranking
+  cross_encoder: "cross-encoder/ms-marco-MiniLM-L-12-v2"  # Re-ranking
 ```
 
 ### 7.2 Pipeline Configuration

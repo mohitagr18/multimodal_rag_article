@@ -210,4 +210,7 @@ __marimo__/
 # Reference
 reference_repo/
 
+# Qdrant local vector database
+qdrant_db/
+
 .DS_Store
