@@ -84,6 +84,15 @@ def interactive_search():
                 print("No results found in Qdrant.")
                 continue
 
+            # Modality Boosting: Boost image chunks for visual queries
+            visual_keywords = {"diagram", "flowchart", "figure", "image", "chart", "visual", "illustration", "picture", "encoder", "decoder"}
+            query_words = set(query.lower().split())
+            if query_words & visual_keywords:
+                print("   [Visual query detected - boosting image modality]")
+                for hit in results:
+                    if hit.payload.get("modality") == "image":
+                        hit.score *= 1.35  # 35% boost for visual queries
+
             # Stage 2: Cross-Encoder Reranking
             print(
                 f"2. Re-Ranking (Scoring {len(results)} candidates against the query)..."
