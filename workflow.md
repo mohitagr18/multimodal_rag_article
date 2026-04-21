@@ -7,42 +7,49 @@ This document provides detailed workflow diagrams for each phase of the Multimod
 ## 1. Overall Pipeline
 
 ```mermaid
-flowchart TB
-    subgraph Input
+flowchart LR
+    subgraph Input["Input"]
+        direction TB
         PDF[PDF Document]
     end
 
     subgraph Phase1["Phase 1: Parse"]
+        direction TB
         P1A[Naive Extraction]
         P1B[Structure-Aware Parsing]
         P1C[PP-DocLayout + GLM-OCR]
+        P1B --> P1C
     end
 
     subgraph Phase2["Phase 2: Enrich"]
+        direction TB
         P2A[Image Extraction]
         P2B[VLM Captioning]
         P2C[Base64 Encoding]
+        P2A --> P2B --> P2C
     end
 
     subgraph Phase3["Phase 3: Ingest"]
+        direction TB
         P3A[Embedding Generation]
         P3B[Qdrant Storage]
+        P3A --> P3B
     end
 
     subgraph Phase4["Phase 4: Retrieve"]
+        direction TB
         P4A[Query Embedding]
         P4B[Dense Search]
         P4C[Modality Boosting]
         P4D[Cross-Encoder Rerank]
         P4E[LLM Synthesis]
+        P4A --> P4B --> P4C --> P4D --> P4E
     end
 
     Output[Final Answer]
 
-    PDF --> P1A
-    PDF --> P1B
-    P1B --> P1C
-    P1C --> Phase2
+    Input --> Phase1
+    Phase1 --> Phase2
     Phase2 --> Phase3
     Phase3 --> Phase4
     Phase4 --> Output
@@ -56,24 +63,21 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-    subgraph Naive["Naive Extraction (Baseline)"]
-        NB1[PDF]
-        NB2[fitz.get_text blocks]
-        NB3[Tokenize to 512]
-        NB4[Flat Chunks]
+    subgraph Naive["Naive Extraction<br/>(Baseline)"]
+        direction TB
+        NB1[PDF] --> NB2[fitz.get_text blocks] --> NB3[Tokenize to 512] --> NB4[Flat Chunks]
     end
 
     subgraph StructureAware["Structure-Aware Parsing"]
-        SA1[PDF]
-        SA2[PP-DocLayout Detection]
-        SA3[GLM-OCR Text Recognition]
-        SA4[Element Classification]
-        SA5[Structure-Aware Chunking]
-        SA6[Multimodal Chunks]
+        direction TB
+        SA1[PDF] --> SA2[PP-DocLayout Detection] --> SA3[GLM-OCR Text Recognition] --> SA4[Element Classification] --> SA5[Structure-Aware Chunking] --> SA6[Multimodal Chunks]
     end
 
-    NB4 -->|"5 chunks<br/>Text only"| Result1[Lost: Layout<br/>Tables Images<br/>Reading Order]
-    SA6 -->|"17 chunks<br/>Text + Image<br/>+ Table + Formula"| Result2[Preserved: Layout<br/>Bounding Boxes<br/>Element Types]
+    NB4 -->|"5 chunks<br/>Text only"| Result1["Lost:<br/>Layout<br/>Tables<br/>Images<br/>Reading Order"]
+    SA6 -->|"17 chunks<br/>Text + Image<br/>+ Table + Formula"| Result2["Preserved:<br/>Layout<br/>Bounding Boxes<br/>Element Types"]
+
+    style Result1 fill:#ffebee,stroke:#c62828
+    style Result2 fill:#e8f5e9,stroke:#2e7d32
 ```
 
 ### 2.2 Parsing Element Classification
@@ -102,40 +106,40 @@ flowchart TB
 ## 3. Phase 2: Multimodal Enrichment
 
 ```mermaid
-flowchart TB
+flowchart LR
     Input[structured_chunks.json]
-    
+
     subgraph Enrich["For Each Chunk"]
-        E1{Is image/table/formula?}
-        E2[Extract bbox coordinates]
+        direction TB
+        E1{Is image,<br/>table, or formula?}
+        Skip[Skip]
+        E2[Extract bbox<br/>coordinates]
         E3[PyMuPDF crop]
         E4[Render to PNG]
         E5[Base64 encode]
         E6[Store in chunk]
-        
-        E1 -->|No| Skip[Skip]
-        E1 -->|Yes| E2
-        E2 --> E3
-        E3 --> E4
-        E4 --> E5
-        E5 --> E6
+
+        E1 -->|No| Skip
+        E1 -->|Yes| E2 --> E3 --> E4 --> E5 --> E6
     end
-    
+
     subgraph VLM["VLM Captioning (Images Only)"]
-        V1[Base64 Image]
+        direction TB
+        V1[Base64 image]
         V2[Ollama API<br/>qwen2.5vl:7b]
-        V3[Prompt: Describe<br/>this image]
-        V4[Generated Caption]
+        V3[Prompt:<br/>Describe this image]
+        V4[Generated caption]
         V5[Prepend to chunk text]
+
+        V1 --> V2 --> V3 --> V4 --> V5
     end
-    
+
+    Output[enriched_chunks.json]
+
+    Input --> E1
+    Skip --> Output
     E6 --> V1
-    V1 --> V2
-    V2 --> V3
-    V3 --> V4
-    V4 --> V5
-    
-    V5 --> Output[enriched_chunks.json]
+    V5 --> Output
 ```
 
 ### 3.1 Chunk Schema After Enrichment
@@ -154,10 +158,8 @@ classDiagram
         +string image_base64
         +string caption
     }
-    
-    Chunk : "text": "[IMAGE CAPTION] The transformer architecture shows encoder and decoder blocks...\n\n[ORIGINAL TEXT] The image is a flowchart..."
-    Chunk : "modality": "image" | "table" | "formula" | "text"
-    Chunk : "image_base64": "iVBORw0KGgoAAA..."
+
+    note for Chunk "text: [IMAGE CAPTION] The transformer architecture shows encoder and decoder blocks...\n\n[ORIGINAL TEXT] The image is a flowchart...\n\nmodality: image | table | formula | text\n\nimage_base64: iVBORw0KGgoAAA..."
 ```
 
 ---
@@ -165,39 +167,44 @@ classDiagram
 ## 4. Phase 3: Vector Ingestion
 
 ```mermaid
-flowchart TB
-    Input[enriched_chunks.json]
-    
+flowchart LR
+    Input["enriched_chunks.json"]
+
     subgraph Embed["Embedding Pipeline"]
-        E1[Initialize Ollama Client]
-        E2[Test embedding<br/>dimension]
-        E3[Create Qdrant collection<br/>Cosine distance]
+        direction TB
+        E1["Initialize Ollama client"]
+        E2["Test embedding dimension"]
+        E3["Create Qdrant collection<br/>Cosine distance"]
+
+        E1 --> E2 --> E3
     end
-    
+
     subgraph Process["For Each Chunk"]
-        P1[Extract text field]
-        P2[Call Ollama<br/>embeddings API]
-        P3[Get vector<br/>2560-dim (qwen3)]
-        P4[Build metadata<br/>chunk_id, page, modality]
+        direction TB
+        P1["Extract text field"]
+        P2["Call Ollama<br/>embeddings API"]
+        P3["Get vector<br/>2560-dim, qwen3"]
+        P4["Build metadata<br/>chunk_id, page, modality"]
+
+        P1 --> P2 --> P3 --> P4
     end
-    
+
     subgraph Store["Qdrant Upsert"]
-        S1[Create PointStruct]
-        S2[Add vector]
-        S3[Add payload<br/>text + metadata]
-        S4[Upsert to collection]
+        direction TB
+        S1["Create PointStruct"]
+        S2["Add vector"]
+        S3["Add payload<br/>text + metadata"]
+        S4["Upsert to collection"]
+
+        S1 --> S2 --> S3 --> S4
     end
-    
-    Input --> E1
-    E1 --> E2
-    E2 --> E3
-    E3 --> Process
-    Process --> P1
-    P1 --> P2
-    P2 --> P3
-    P3 --> P4
-    P4 --> Store
-    Store --> Output[Qdrant Collection<br/>article_chunks]
+
+    Output["Qdrant collection<br/>article_chunks"]
+
+    Input --> Embed
+    Embed --> Process
+    Process --> Store
+    Store --> Output
 ```
 
 ---
@@ -207,98 +214,95 @@ flowchart TB
 ### 5.1 Complete Query Flow
 
 ```mermaid
-flowchart TB
-    Query[User Query]
-    
+flowchart LR
+    Query["User Query"]
+
     subgraph EmbedQuery["Query Processing"]
-        Q1[Embed query<br/>via Ollama]
-        Q2[Query vector<br/>2560-dim]
+        direction TB
+        Q1["Embed query<br/>via Ollama"]
+        Q2["Query vector<br/>2560-dim"]
+
+        Q1 --> Q2
     end
-    
+
     subgraph DenseSearch["Stage 1: Dense Retrieval"]
-        D1[Qdrant vector search]
-        D2[Top 20 candidates]
-        D3[Cosine similarity<br/>scores]
+        direction TB
+        D1["Qdrant vector search"]
+        D2["Top 20 candidates"]
+        D3["Cosine similarity<br/>scores"]
+
+        D1 --> D2 --> D3
     end
-    
+
     subgraph Boost["Stage 2: Modality Boosting"]
-        B1{Visual keywords<br/>detected?}
-        B2[Multiply image<br/>scores by 1.35]
-        B3[Skip boosting]
-        
+        direction TB
+        B1{"Visual keywords<br/>detected?"}
+        B2["Multiply image<br/>scores by 1.35"]
+        B3["Skip boosting"]
+
         B1 -->|Yes| B2
         B1 -->|No| B3
     end
-    
-    subgraph Rerank["Stage 3: Cross-Encoder (skip for visual)"]
-        R1{Is visual<br/>query?}
-        R2[Skip reranking<br/>Use boosted scores]
-        R3[Cross-encoder<br/>ms-marco-MiniLM-L-6-v2]
-        R4[Re-sort by<br/>cross-encoder score]
-        
+
+    subgraph Rerank["Stage 3: Cross-Encoder"]
+        direction TB
+        R1{"Visual query?"}
+        R2["Skip reranking<br/>use boosted scores"]
+        R3["Cross-encoder<br/>ms-marco-MiniLM-L-6-v2"]
+        R4["Re-sort by<br/>cross-encoder score"]
+
         R1 -->|Yes| R2
-        R1 -->|No| R3
-        R3 --> R4
+        R1 -->|No| R3 --> R4
     end
-    
+
     subgraph Synthesize["Stage 4: LLM Synthesis"]
-        S1[Top 4 chunks<br/>as context]
-        S2[Build prompt with<br/>modality badges]
-        S3[Call LLM<br/>qwen2.5vl:7b]
-        S4[Generate answer]
+        direction TB
+        S1["Top 4 chunks<br/>as context"]
+        S2["Build prompt with<br/>modality badges"]
+        S3["Call LLM<br/>qwen2.5vl:7b"]
+        S4["Generate answer"]
+
+        S1 --> S2 --> S3 --> S4
     end
-    
-    Query --> Q1
-    Q1 --> Q2
-    Q2 --> D1
-    D1 --> D2
-    D2 --> D3
-    D3 --> B1
-    B1 --> B2
-    B1 --> B3
-    B2 --> R1
-    B3 --> R1
-    R1 --> R2
-    R1 --> R3
-    R2 --> S1
-    R3 --> R4
-    R4 --> S1
-    S1 --> S2
-    S2 --> S3
-    S3 --> S4
-    S4 --> Answer[Final Answer]
+
+    Answer["Final Answer"]
+
+    Query --> EmbedQuery
+    EmbedQuery --> DenseSearch
+    DenseSearch --> Boost
+    Boost --> Rerank
+    Rerank --> Synthesize
+    Synthesize --> Answer
 ```
 
 ### 5.2 Modality Boosting Logic
 
 ```mermaid
-flowchart TB
-    Start[Incoming Query] --> Extract{Extract query words}
-    
-    Extract --> Lower[Convert to lowercase]
-    Lower --> Split[Split by whitespace]
-    Split --> Keywords{Contains visual<br/>keywords?}
-    
-    Keywords -->|"Yes"| Visual[Visual Query<br/>Detected]
-    Keywords -->|"No"| NonVisual[Non-Visual Query]
-    
-    Visual --> ForEach[For each result]
-    ForEach --> CheckMod{modality<br/>== "image"?}
-    
-    CheckMod -->|Yes| Boost[score = score × 1.35]
-    CheckMod -->|No| NoBoost[No change]
-    
-    Boost --> AllDone[All results processed]
+flowchart LR
+    Start["Incoming Query"] --> Extract{"Extract query words"}
+    Extract --> Lower["Convert to lowercase"]
+    Lower --> Split["Split by whitespace"]
+    Split --> Keywords{"Contains visual<br/>keywords?"}
+
+    Keywords -->|Yes| Visual["Visual query<br/>detected"]
+    Keywords -->|No| NonVisual["Non-visual query"]
+
+    Visual --> ForEach["For each result"]
+    ForEach --> CheckMod{"modality == image?"}
+
+    CheckMod -->|Yes| Boost["score = score × 1.35"]
+    CheckMod -->|No| NoBoost["No change"]
+
+    Boost --> AllDone["All results processed"]
     NoBoost --> AllDone
-    NonVisual --> Skip[Skip boosting<br/>Use original scores]
-    
-    AllDone --> Sort[Sort by<br/>adjusted score]
+    NonVisual --> Skip["Skip boosting<br/>use original scores"]
+
+    AllDone --> Sort["Sort by<br/>adjusted score"]
     Skip --> Sort
-    
-    Sort --> Output[Ranked results]
-    
-    note1[("Visual Keywords:<br/>diagram, flowchart,<br/>figure, image, chart,<br/>visual, illustration,<br/>picture, encoder,<br/>decoder")]
-    Keywords -.-> note1
+    Sort --> Output["Ranked results"]
+
+    Note["Visual keywords:<br/>diagram, flowchart,<br/>figure, image, chart,<br/>visual, illustration,<br/>picture, encoder,<br/>decoder"]
+    Keywords -.-> Note
 ```
 
 ### 5.3 Why Modality Boosting?
@@ -306,20 +310,23 @@ flowchart TB
 ```mermaid
 flowchart LR
     subgraph Problem["Before Boosting"]
-        P1[Query: "What does the<br/>architecture diagram show?"]
-        P2[Top Results:<br/>1. test.pdf_1_2 TEXT 0.852<br/>2. test.pdf_3_1 TABLE 0.847<br/>3. test.pdf_3_2 TEXT 0.847<br/>...<br/>7. test.pdf_1_0 IMAGE 0.837]
-        P3[Problem: IMAGE at #7<br/>despite query about diagram]
+        direction TB
+        P1["Query:<br/>What does the<br/>architecture diagram show?"]
+        P2["Top results:<br/>1. test.pdf_1_2 TEXT 0.852<br/>2. test.pdf_3_1 TABLE 0.847<br/>3. test.pdf_3_2 TEXT 0.847<br/>...<br/>7. test.pdf_1_0 IMAGE 0.837"]
+        P3["Problem:<br/>IMAGE ranked #7<br/>despite diagram query"]
+
+        P1 --> P2 --> P3
     end
-    
+
     subgraph Solution["After Boosting"]
-        S1[Query: "What does the<br/>architecture diagram show?"]
-        S2[Visual keyword<br/>"diagram" detected]
-        S3[IMAGE score: 0.837 × 1.35<br/>= 1.130]
-        S4[Top Results:<br/>1. test.pdf_1_0 IMAGE 1.130<br/>2. test.pdf_1_2 TEXT 0.852<br/>3. test.pdf_3_1 TABLE 0.847<br/>4. test.pdf_3_2 TEXT 0.847]
+        direction TB
+        S1["Query:<br/>What does the<br/>architecture diagram show?"]
+        S2["Visual keyword detected:<br/>diagram"]
+        S3["IMAGE score:<br/>0.837 x 1.35 = 1.130"]
+        S4["Top results:<br/>1. test.pdf_1_0 IMAGE 1.130<br/>2. test.pdf_1_2 TEXT 0.852<br/>3. test.pdf_3_1 TABLE 0.847<br/>4. test.pdf_3_2 TEXT 0.847"]
+
+        S1 --> S2 --> S3 --> S4
     end
-    
-    P1 --> P2 --> P3
-    S1 --> S2 --> S3 --> S4
 ```
 
 ---

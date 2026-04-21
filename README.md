@@ -12,53 +12,35 @@ This project demonstrates how preserving document structure (element types, boun
 4. **Retrieves** with modality boosting + cross-encoder reranking
 
 ```mermaid
-flowchart TB
+flowchart LR
     subgraph Input["INPUT"]
+        direction TB
         PDF[PDF Document]
     end
 
     subgraph Phase1["PHASE 1: Parse"]
-        P1A[PP-DocLayout V3]
-        P1B[GLM-OCR]
-        P1C[Element Classification]
-        P1D[Structure-Aware Chunking]
+        direction TB
+        P1A[PP-DocLayout V3] --> P1B[GLM-OCR] --> P1C[Element Classification] --> P1D[Structure-Aware Chunking]
     end
 
     subgraph Phase2["PHASE 2: Enrich"]
-        P2A[Extract Images/Tables]
-        P2B[PyMuPDF Crop]
-        P2C[VLM Captioning]
-        P2D[Base64 Encoding]
+        direction TB
+        P2A[Extract Images/Tables] --> P2B[PyMuPDF Crop] --> P2C[VLM Captioning] --> P2D[Base64 Encoding]
     end
 
     subgraph Phase3["PHASE 3: Ingest"]
-        P3A[Ollama Embedding]
-        P3B[Vector Creation]
-        P3C[Qdrant Storage]
+        direction TB
+        P3A[Ollama Embedding] --> P3B[Vector Creation] --> P3C[Qdrant Storage]
     end
 
     subgraph Phase4["PHASE 4: Retrieve"]
-        P4A[Query Embedding]
-        P4B[Dense Search]
-        P4C[Modality Boosting]
-        P4D[Cross-Encoder Rerank]
-        P4E[LLM Synthesis]
+        direction TB
+        P4A[Query Embedding] --> P4B[Dense Search] --> P4C[Modality Boosting] --> P4D[Cross-Encoder Rerank] --> P4E[LLM Synthesis]
     end
 
     Output[Final Answer]
 
-    PDF --> P1A
-    P1A --> P1B
-    P1B --> P1C
-    P1C --> P1D
-    P1D --> Phase2
-    
-    Phase2 --> P3A
-    P3A --> P3B
-    P3B --> P3C
-    P3C --> Phase4
-    
-    Phase4 --> Output
+    Input --> Phase1 --> Phase2 --> Phase3 --> Phase4 --> Output
 
     style Input fill:#e1f5fe
     style Phase1 fill:#fff3e0
