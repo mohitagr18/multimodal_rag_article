@@ -1,7 +1,7 @@
 # Multimodal RAG Prototype: Test Results
 
 ## Date
-April 20, 2026
+April 21, 2026
 
 ## Configuration
 
@@ -9,16 +9,18 @@ All models are sourced from `config.yaml` as the single source of truth:
 
 ```yaml
 models:
-  embedding: "gemma2:2b"
+  embedding: "qwen3-embedding:4b"
   llm: "qwen2.5vl:7b"
   vlm: "qwen2.5vl:7b"
-  cross_encoder: "cross-encoder/ms-marco-MiniLM-L-6-v2"
+  cross_encoder: "cross-encoder/ms-marco-MiniLM-L-12-v2"
 ```
 
-## Key Features Implemented
+## Pipeline Stages
 
-1. **Modality Boosting** (phase4_retrieve.py): Visual queries trigger 35% score boost for image chunks
-2. **Visual Keywords**: diagram, flowchart, figure, image, chart, visual, illustration, picture, encoder, decoder
+1. **Dense Retrieval**: Vector search (top 20)
+2. **Modality Boosting**: 35% boost for image chunks on visual queries
+3. **Cross-Encoder Reranking**: ms-marco-MiniLM-L-12-v2 re-scoring
+4. **LLM Synthesis**: qwen2.5vl:7b answer generation
 
 ---
 
@@ -42,13 +44,23 @@ models:
 
 | Rank | Chunk ID | Modality | Page | Score |
 |------|---------|---------|------|-------|
-| 1 | test.pdf_2_1 | TABLE | 2 | 0.859 |
-| 2 | test.pdf_1_2 | TEXT | 1 | 0.857 |
-| 3 | test.pdf_3_2 | TEXT | 3 | 0.847 |
-| 4 | test.pdf_2_5 | TEXT | 2 | 0.834 |
-| 5 | test.pdf_3_1 | TABLE | 3 | 0.833 |
+| 1 | test.pdf_2_1 | TABLE | 2 | 2.465 |
+| 2 | test.pdf_2_0 | TEXT | 2 | -0.145 |
+| 3 | test.pdf_2_6 | TEXT | 2 | -5.75 |
+| 4 | test.pdf_1_0 | IMAGE | 1 | -7.366 |
+| 5 | test.pdf_3_2 | TEXT | 3 | -8.084 |
 
-**Analysis:** Table chunk ranks #1 (0.859)
+**Answer:**
+Based on the provided context chunks, here's a summary of the different model complexities and their per-layer complexity scores for the three layer types: Self-Attention, Recurrent, and Convolutional:
+
+1. **Self-Attention:**
+   - **Per-layer complexity:** \( O(n^2 \cdot d) \)
+   - **Sequential operations (per layer):** \( O(1) \)
+   - **Maximum path length (per layer):** \( O(1) \)
+
+2. **Recurrent:**
+   - **Per-layer complexity:** \( O(n \cdot d^2) \)
+   - **Sequential operations (per layer):**...
 
 ---
 
@@ -58,13 +70,14 @@ models:
 
 | Rank | Chunk ID | Modality | Page | Score |
 |------|---------|---------|------|-------|
-| 1 | test.pdf_3_0 | TEXT | 3 | 0.827 |
-| 2 | test.pdf_3_1 | TABLE | 3 | 0.795 |
-| 3 | test.pdf_3_2 | TEXT | 3 | 0.770 |
-| 4 | test.pdf_1_2 | TEXT | 1 | 0.726 |
-| 5 | test.pdf_3_4 | TEXT | 3 | 0.726 |
+| 1 | test.pdf_3_1 | TABLE | 3 | 8.189 |
+| 2 | test.pdf_3_0 | TEXT | 3 | 5.317 |
+| 3 | test.pdf_3_4 | TEXT | 3 | 4.202 |
+| 4 | test.pdf_3_2 | TEXT | 3 | -3.255 |
+| 5 | test.pdf_3_3 | TEXT | 3 | -10.596 |
 
-**Analysis:** Table at rank #2, correctly identifies Transformer has lowest cost
+**Answer:**
+The model with the lowest training cost is indicated as Model [18], which has a training cost of \(1.0 \cdot 10^{20}\) FLOPs. The corresponding BLEU score for this model is not explicitly mentioned in the provided context chunks....
 
 ---
 
@@ -74,13 +87,14 @@ models:
 
 | Rank | Chunk ID | Modality | Page | Score |
 |------|---------|---------|------|-------|
-| **1** | **test.pdf_1_0** | **IMAGE** | **1** | **1.133** |
-| 2 | test.pdf_1_2 | TEXT | 1 | 0.852 |
-| 3 | test.pdf_3_1 | TABLE | 3 | 0.847 |
-| 4 | test.pdf_3_2 | TEXT | 3 | 0.847 |
-| 5 | test.pdf_2_5 | TEXT | 2 | 0.844 |
+| 1 | test.pdf_1_0 | IMAGE | 1 | 0.562 |
+| 2 | test.pdf_1_1 | TEXT | 1 | 0.5 |
+| 3 | test.pdf_3_3 | TEXT | 3 | 0.444 |
+| 4 | test.pdf_2_0 | TEXT | 2 | 0.366 |
+| 5 | test.pdf_2_1 | TABLE | 2 | 0.344 |
 
-**Analysis:** ✅ **IMAGE ranks #1** with 1.133 score (35% boost applied: 0.839 × 1.35 = 1.133)
+**Answer:**
+The architecture diagram in the image illustrates the structure of a transformer model, a type of neural network commonly used in natural language processing (NLP). The diagram shows the general architecture of a transformer model divided into two main components: the encoder and the decoder, which communicate with each other through a series of layers. It highlights the process of input and output sequences being embedded into a vector space using embedding layers, where the input sequence is t...
 
 ---
 
@@ -90,13 +104,18 @@ models:
 
 | Rank | Chunk ID | Modality | Page | Score |
 |------|---------|---------|------|-------|
-| **1** | **test.pdf_1_0** | **IMAGE** | **1** | **0.897** |
-| 2 | test.pdf_2_2 | TEXT | 2 | 0.714 |
-| 3 | test.pdf_3_5 | TEXT | 3 | 0.710 |
-| 4 | test.pdf_3_1 | TABLE | 3 | 0.706 |
-| 5 | test.pdf_1_1 | TEXT | 1 | 0.704 |
+| 1 | test.pdf_1_0 | IMAGE | 1 | 0.747 |
+| 2 | test.pdf_1_1 | TEXT | 1 | 0.56 |
+| 3 | test.pdf_1_2 | TEXT | 1 | 0.519 |
+| 4 | test.pdf_3_0 | TEXT | 3 | 0.457 |
+| 5 | test.pdf_2_0 | TEXT | 2 | 0.414 |
 
-**Analysis:** ✅ **IMAGE ranks #1** with 0.897 score (boosted from 0.665 × 1.35)
+**Answer:**
+The flowchart depicts the architecture of a transformer model with an emphasis on its encoder and decoder components. In the context of this diagram, the encoder and decoder blocks are interconnected through a series of layers that facilitate the processing of input and output sequences in natural language processing tasks.
+
+### Encoder Block:
+
+The encoder block is composed of a stack of N=6 identical layers, where N represents the number of layers. Each layer within the encoder consists of two ...
 
 ---
 
@@ -106,13 +125,18 @@ models:
 
 | Rank | Chunk ID | Modality | Page | Score |
 |------|---------|---------|------|-------|
-| 1 | test.pdf_1_1 | TEXT | 1 | 0.746 |
-| 2 | test.pdf_3_1 | TABLE | 3 | 0.723 |
-| 3 | test.pdf_2_2 | TEXT | 2 | 0.720 |
-| 4 | test.pdf_2_5 | TEXT | 2 | 0.718 |
-| 5 | test.pdf_1_2 | TEXT | 1 | 0.709 |
+| 1 | test.pdf_1_3 | TEXT | 1 | -2.825 |
+| 2 | test.pdf_1_2 | TEXT | 1 | -5.129 |
+| 3 | test.pdf_2_6 | TEXT | 2 | -5.816 |
+| 4 | test.pdf_1_0 | IMAGE | 1 | -6.06 |
+| 5 | test.pdf_2_1 | TABLE | 2 | -10.166 |
 
-**Analysis:** Text chunk ranks #1 correctly
+**Answer:**
+The attention mechanism in a transformer model is a method for allowing each computation step to focus on the most relevant data. Specifically, an attention function maps a query and a set of key-value pairs to an output, where: 
+
+- The query is a vector,
+- The keys and values are vectors pairs,
+- The output is a weighted sum computed by each element of the key multiplying by the corresponding element from the value vector, then summed together based on the weights computed by the attention mech...
 
 ---
 
@@ -121,69 +145,20 @@ models:
 | Query Type | Top Rank | Top Modality | Status |
 |-----------|---------|------------|--------|
 | Table | #1 | TABLE | ✅ Working |
-| Image | #1 | IMAGE | ✅ Working (with 35% boost) |
+| Image | #1 | IMAGE | ✅ Working (with boost + reranking) |
 | Text | #1 | TEXT | ✅ Working |
-
----
-
-## How Modality Boosting Works
-
-**Implementation in phase4_retrieve.py:**
-
-```python
-# Modality Boosting: Boost image chunks for visual queries
-visual_keywords = {"diagram", "flowchart", "figure", "image", "chart", 
-                "visual", "illustration", "picture", "encoder", "decoder"}
-query_words = set(query.lower().split())
-if query_words & visual_keywords:
-    print("   [Visual query detected - boosting image modality]")
-    for hit in results:
-        if hit.payload.get("modality") == "image":
-            hit.score *= 1.35  # 35% boost
-```
-
-**Before Boosting:**
-- Query 3: Image ranked #7 (score: 0.837)
-- Query 4: Image ranked #12 (score: 0.665)
-
-**After Boosting:**
-- Query 3: Image ranked #1 (score: 1.133)
-- Query 4: Image ranked #1 (score: 0.897)
 
 ---
 
 ## Qdrant Database Stats
 
-- **Total points:** 17
-- **Embedding dimension:** 2304 (gemma2:2b)
+- **Embedding model:** qwen3-embedding:4b (dimension: 2560)
+- **LLM model:** qwen2.5vl:7b
+- **Cross-encoder:** cross-encoder/ms-marco-MiniLM-L-12-v2
 - **Distance metric:** Cosine
-- **Image chunks with base64:** 4 (images and formulas)
-
----
-
-## Issues Fixed
-
-1. **Hardcoded model in run_retrieval_evaluation.py:**
-   - Line 128: Changed from "embeddinggemma" to use config
-   - Line 207: Removed undefined variable reference
-
-2. **Image retrieval not working:**
-   - Initially images ranked #7-#12 for visual queries
-   - Added modality boosting (35% boost) in phase4_retrieve.py
-   - Added visual keywords: flowchart, diagram, encoder, decoder, etc.
-   - **Now image ranks #1 for all visual queries**
-
-3. **LLM model:**
-   - Changed from gemma2:2b to qwen2.5vl:7b
-   - Both VLM and LLM now use qwen2.5vl:7b
 
 ---
 
 ## Conclusion
 
-✅ **All modalities now retrieve correctly:**
-- **Table queries** → TABLE chunks rank #1
-- **Image queries** → IMAGE chunks rank #1 (with 35% boost)
-- **Text queries** → TEXT chunks rank #1
-
-The modality boosting successfully addresses the image retrieval gap while maintaining the structure-aware approach.
+✅ **All modalities retrieve correctly with full pipeline (embedding + boosting + reranking)**

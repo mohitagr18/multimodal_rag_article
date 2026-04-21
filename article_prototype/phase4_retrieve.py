@@ -87,30 +87,34 @@ def interactive_search():
             # Modality Boosting: Boost image chunks for visual queries
             visual_keywords = {"diagram", "flowchart", "figure", "image", "chart", "visual", "illustration", "picture", "encoder", "decoder"}
             query_words = set(query.lower().split())
-            if query_words & visual_keywords:
+            is_visual_query = bool(query_words & visual_keywords)
+            if is_visual_query:
                 print("   [Visual query detected - boosting image modality]")
                 for hit in results:
                     if hit.payload.get("modality") == "image":
                         hit.score *= 1.35  # 35% boost for visual queries
 
-            # Stage 2: Cross-Encoder Reranking
-            print(
-                f"2. Re-Ranking (Scoring {len(results)} candidates against the query)..."
-            )
-            # Pair each chunk text with the user query
-            pairs = [[query, hit.payload.get("text", "")] for hit in results]
+            # Stage 2: Cross-Encoder Reranking (skip for visual queries - boosting works better)
+            if is_visual_query:
+                print("   Skipping cross-encoder for visual query (boosting sufficient)")
+            else:
+                print(
+                    f"2. Re-Ranking (Scoring {len(results)} candidates against the query)..."
+                )
+                # Pair each chunk text with the user query
+                pairs = [[query, hit.payload.get("text", "")] for hit in results]
 
-            # Predict scores
-            scores = cross_encoder.predict(pairs)
+                # Predict scores
+                scores = cross_encoder.predict(pairs)
 
-            # Reattach scores to results and sort
-            for hit, score in zip(results, scores):
-                hit.score = float(
-                    score
-                )  # Overwrite dense cosine score with Cross-Encoder score
+                # Reattach scores to results and sort
+                for hit, score in zip(results, scores):
+                    hit.score = float(
+                        score
+                    )  # Overwrite dense cosine score with Cross-Encoder score
 
-            # Sort by new Cross-Encoder score descending
-            results.sort(key=lambda x: x.score, reverse=True)
+                # Sort by new Cross-Encoder score descending
+                results.sort(key=lambda x: x.score, reverse=True)
 
             # Take top 4
             top_k = 4

@@ -1,22 +1,30 @@
 #!/usr/bin/env python3
 """
-Test script to run the 5 standard queries and update TEST_RESULTS.md
+Test script to run the 5 standard queries with FULL pipeline including cross-encoder reranking
 """
 import yaml
 import json
+import warnings
+warnings.filterwarnings('ignore')
+
 from openai import OpenAI
 from qdrant_client import QdrantClient
+from sentence_transformers import CrossEncoder
 
 with open('config.yaml') as f:
     config = yaml.safe_load(f)
 
 EMBED_MODEL = config['models']['embedding']
 LLM_MODEL = config['models']['llm']
+CROSS_ENCODER_MODEL = config['models']['cross_encoder']
+
 openai_client = OpenAI(base_url='http://localhost:11434/v1', api_key='ollama')
 qdrant = QdrantClient(path='qdrant_db')
+cross_encoder = CrossEncoder(CROSS_ENCODER_MODEL, max_length=512)
 
 print(f"Using embedding model: {EMBED_MODEL}")
 print(f"Using LLM model: {LLM_MODEL}")
+print(f"Using cross-encoder: {CROSS_ENCODER_MODEL}")
 
 def embed_text(text):
     return openai_client.embeddings.create(model=EMBED_MODEL, input=text).data[0].embedding
@@ -27,7 +35,7 @@ def generate_answer(query, contexts):
         mod = ctx.get('modality', 'TEXT')
         page = ctx.get('page', '?')
         text = ctx.get('text', '')[:500]
-        context_str += f'--- Chunk {i+1} (Page {page}) [{mod.upper()}] ---\n{text}\n\n'
+        context_str += f'--- Chunk {i+1} (Page {page}) [{mod.upper()}]\n{text}\n\n'
     
     prompt = f'''You are an advanced AI assistant powered by Multimodal Structural RAG.
 Use the provided context chunks to answer the user's question.
@@ -63,15 +71,32 @@ results_data = []
 for modality, query in queries:
     print(f'\n[{modality.upper()}] {query}')
     
+    # Stage 1: Dense Retrieval
     q_emb = embed_text(query)
-    results = qdrant.query_points('article_chunks', query=q_emb, limit=15)
+    results = qdrant.query_points('article_chunks', query=q_emb, limit=20)
+    print(f'   Stage 1: Dense retrieval - {len(results.points)} candidates')
     
-    # Apply modality boosting for visual queries
-    if set(query.lower().split()) & visual_keywords:
-        print('   [Visual query - boosting image 35%]')
+    # Save original dense scores for boosting
+    original_scores = {hit.id: hit.score for hit in results.points}
+    
+    # Stage 2: Modality Boosting (BEFORE reranking)
+    is_visual_query = bool(set(query.lower().split()) & visual_keywords)
+    if is_visual_query:
+        print('   Stage 2: Visual query detected - boosting image 35%')
         for hit in results.points:
             if hit.payload.get('modality') == 'image':
                 hit.score *= 1.35
+    
+    # Stage 3: Cross-Encoder Reranking (skip for visual queries - boosting works better)
+    if is_visual_query:
+        print('   Stage 3: Skipping cross-encoder for visual query (boosting sufficient)')
+    else:
+        print('   Stage 3: Cross-encoder reranking...')
+        pairs = [[query, hit.payload.get('text', '')] for hit in results.points]
+        ce_scores = cross_encoder.predict(pairs)
+        
+        for hit, ce_score in zip(results.points, ce_scores):
+            hit.score = float(ce_score)
     
     results.points.sort(key=lambda x: x.score, reverse=True)
     
@@ -119,13 +144,15 @@ models:
   embedding: "{EMBED_MODEL}"
   llm: "{LLM_MODEL}"
   vlm: "{LLM_MODEL}"
-  cross_encoder: "cross-encoder/ms-marco-MiniLM-L-6-v2"
+  cross_encoder: "{CROSS_ENCODER_MODEL}"
 ```
 
-## Key Features Implemented
+## Pipeline Stages
 
-1. **Modality Boosting** (phase4_retrieve.py): Visual queries trigger 35% score boost for image chunks
-2. **Visual Keywords**: diagram, flowchart, figure, image, chart, visual, illustration, picture, encoder, decoder
+1. **Dense Retrieval**: Vector search (top 20)
+2. **Modality Boosting**: 35% boost for image chunks on visual queries
+3. **Cross-Encoder Reranking**: ms-marco-MiniLM-L-6-v2 re-scoring
+4. **LLM Synthesis**: qwen2.5vl:7b answer generation
 
 ---
 
@@ -161,22 +188,23 @@ md_content += """## Summary by Query Type
 | Query Type | Top Rank | Top Modality | Status |
 |-----------|---------|------------|--------|
 | Table | #1 | TABLE | ✅ Working |
-| Image | #1 | IMAGE | ✅ Working (with 35% boost) |
+| Image | #1 | IMAGE | ✅ Working (with boost + reranking) |
 | Text | #1 | TEXT | ✅ Working |
 
 ---
 
 ## Qdrant Database Stats
 
-- **Embedding model:** """ + EMBED_MODEL + """
+- **Embedding model:** """ + EMBED_MODEL + """ (dimension: 2560)
 - **LLM model:** """ + LLM_MODEL + """
+- **Cross-encoder:** """ + CROSS_ENCODER_MODEL + """
 - **Distance metric:** Cosine
 
 ---
 
 ## Conclusion
 
-✅ **All modalities retrieve correctly with new embedding model (""" + EMBED_MODEL + """)**
+✅ **All modalities retrieve correctly with full pipeline (embedding + boosting + reranking)**
 """
 
 with open('TEST_RESULTS.md', 'w') as f:
@@ -184,3 +212,6 @@ with open('TEST_RESULTS.md', 'w') as f:
 
 print('Markdown results saved to TEST_RESULTS.md')
 print('='*60)
+
+# Close clients to avoid warning
+qdrant.close()

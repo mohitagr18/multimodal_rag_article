@@ -8,39 +8,38 @@
         "chunk_id": "test.pdf_2_1",
         "modality": "table",
         "page": 2,
-        "score": 0.859
+        "score": 2.465
       },
       {
         "rank": 2,
-        "chunk_id": "test.pdf_1_2",
+        "chunk_id": "test.pdf_2_0",
         "modality": "text",
-        "page": 1,
-        "score": 0.857
+        "page": 2,
+        "score": -0.145
       },
       {
         "rank": 3,
-        "chunk_id": "test.pdf_3_2",
+        "chunk_id": "test.pdf_2_6",
         "modality": "text",
-        "page": 3,
-        "score": 0.847
+        "page": 2,
+        "score": -5.75
       },
       {
         "rank": 4,
-        "chunk_id": "test.pdf_2_5",
-        "modality": "text",
-        "page": 2,
-        "score": 0.834
+        "chunk_id": "test.pdf_1_0",
+        "modality": "image",
+        "page": 1,
+        "score": -7.366
       },
       {
         "rank": 5,
-        "chunk_id": "test.pdf_3_1",
-        "modality": "table",
+        "chunk_id": "test.pdf_3_2",
+        "modality": "text",
         "page": 3,
-        "score": 0.833
+        "score": -8.084
       }
     ],
-    "answer": "The document describes different complexities for encoding and decoding layers in a machine learning model, specifically for the components involving self-attention, recurrent, and convolutional layers. The model complexities and their per-layer complexity scores are as follows:\n\n- **Self-Attention**:\n  - **Complexity per layer**:\n    - Per layer complexity: \\( O(n^2 \\cdot d) \\)\n    - Per layer complexified for restricted Self-Attention: \\( O(r \\cdot n \\cdot d) \\)\n  - **Sequential operations per layer**: \\( O(1) \\)\n  - **Maximum path length per layer**: \\( O(1) \\)\n\n- **Recurrent**: \n  - **Complexity per layer**: \\( O(n \\cdot d^2) \\)\n  - **Maximum path length per layer**: \\( O(1) \\)\n\n- **Convolutional**:\n  - **Complexity per layer**: \\( O(k \\cdot n \\cdot d^2) \\)\n    - Here, \\( k \\) can be varied, and it determines how convolutional layers operate.\n\nThese complexities are applicable to the different types of layers within the model architecture described, which could include both encoder and decoder stacks, where layers process sequential data in terms of attending to other points in a sequence or computing spatial convolutions across a 2D feature map.",
-    "image_rank": 9
+    "answer": "Based on the provided context chunks, here's a summary of the different model complexities and their per-layer complexity scores for the three layer types: Self-Attention, Recurrent, and Convolutional:\n\n1. **Self-Attention:**\n   - **Per-layer complexity:** \\( O(n^2 \\cdot d) \\)\n   - **Sequential operations (per layer):** \\( O(1) \\)\n   - **Maximum path length (per layer):** \\( O(1) \\)\n\n2. **Recurrent:**\n   - **Per-layer complexity:** \\( O(n \\cdot d^2) \\)\n   - **Sequential operations (per layer):** \\( O(1) \\)\n   - **Maximum path length (per layer):** \\( O(1) \\)\n\n3. **Convolutional:**\n   - **Per-layer complexity:** \n     - For standard Convolutional, it's \\( O(k \\cdot n \\cdot d^2) \\)\n     - For Restricted Self-Attention, it's \\( O(r \\cdot n \\cdot d) \\)\n   - **Sequential operations (per layer):** \\( O(1) \\)\n   - **Maximum path length (per layer):** \\( O(1) \\)"
   },
   {
     "query_modality": "table",
@@ -48,42 +47,41 @@
     "top_chunks": [
       {
         "rank": 1,
-        "chunk_id": "test.pdf_3_0",
-        "modality": "text",
-        "page": 3,
-        "score": 0.827
-      },
-      {
-        "rank": 2,
         "chunk_id": "test.pdf_3_1",
         "modality": "table",
         "page": 3,
-        "score": 0.795
+        "score": 8.189
+      },
+      {
+        "rank": 2,
+        "chunk_id": "test.pdf_3_0",
+        "modality": "text",
+        "page": 3,
+        "score": 5.317
       },
       {
         "rank": 3,
-        "chunk_id": "test.pdf_3_2",
-        "modality": "text",
-        "page": 3,
-        "score": 0.77
-      },
-      {
-        "rank": 4,
-        "chunk_id": "test.pdf_1_2",
-        "modality": "text",
-        "page": 1,
-        "score": 0.726
-      },
-      {
-        "rank": 5,
         "chunk_id": "test.pdf_3_4",
         "modality": "text",
         "page": 3,
-        "score": 0.726
+        "score": 4.202
+      },
+      {
+        "rank": 4,
+        "chunk_id": "test.pdf_3_2",
+        "modality": "text",
+        "page": 3,
+        "score": -3.255
+      },
+      {
+        "rank": 5,
+        "chunk_id": "test.pdf_3_3",
+        "modality": "text",
+        "page": 3,
+        "score": -10.596
       }
     ],
-    "answer": "The model with the lowest training cost is the Transformer (base model) with a training cost of 38.1.",
-    "image_rank": 10
+    "answer": "The model with the lowest training cost is indicated as Model [18], which has a training cost of \\(1.0 \\cdot 10^{20}\\) FLOPs. The corresponding BLEU score for this model is not explicitly mentioned in the provided context chunks."
   },
   {
     "query_modality": "image",
@@ -94,39 +92,38 @@
         "chunk_id": "test.pdf_1_0",
         "modality": "image",
         "page": 1,
-        "score": 1.133
+        "score": 0.562
       },
       {
         "rank": 2,
-        "chunk_id": "test.pdf_1_2",
+        "chunk_id": "test.pdf_1_1",
         "modality": "text",
         "page": 1,
-        "score": 0.852
+        "score": 0.5
       },
       {
         "rank": 3,
-        "chunk_id": "test.pdf_3_1",
-        "modality": "table",
+        "chunk_id": "test.pdf_3_3",
+        "modality": "text",
         "page": 3,
-        "score": 0.847
+        "score": 0.444
       },
       {
         "rank": 4,
-        "chunk_id": "test.pdf_3_2",
+        "chunk_id": "test.pdf_2_0",
         "modality": "text",
-        "page": 3,
-        "score": 0.847
+        "page": 2,
+        "score": 0.366
       },
       {
         "rank": 5,
-        "chunk_id": "test.pdf_2_5",
-        "modality": "text",
+        "chunk_id": "test.pdf_2_1",
+        "modality": "table",
         "page": 2,
-        "score": 0.844
+        "score": 0.344
       }
     ],
-    "answer": "The architecture diagram shows the main parts and the interconnected layers of a transformer model, which is commonly used in natural language processing (NLP). Specifically, it represents the structure of the model's encoder and decoder, which are interconnected through various processing layers. The process begins with embedding the input and output sequences and then proceeds through the encoder and decoder stacks that each have multiple layers, including multi-head self-attention and positionwise fully connected feed-forward networks, with residual connections and normalization after each sub-layer.",
-    "image_rank": 1
+    "answer": "The architecture diagram in the image illustrates the structure of a transformer model, a type of neural network commonly used in natural language processing (NLP). The diagram shows the general architecture of a transformer model divided into two main components: the encoder and the decoder, which communicate with each other through a series of layers. It highlights the process of input and output sequences being embedded into a vector space using embedding layers, where the input sequence is typically shifted to the right before being processed. This architecture uses stacked self-attention and point-wise, fully connected layers for both the encoder and decoder."
   },
   {
     "query_modality": "image",
@@ -137,39 +134,38 @@
         "chunk_id": "test.pdf_1_0",
         "modality": "image",
         "page": 1,
-        "score": 0.897
+        "score": 0.747
       },
       {
         "rank": 2,
-        "chunk_id": "test.pdf_2_2",
-        "modality": "text",
-        "page": 2,
-        "score": 0.714
-      },
-      {
-        "rank": 3,
-        "chunk_id": "test.pdf_3_5",
-        "modality": "text",
-        "page": 3,
-        "score": 0.71
-      },
-      {
-        "rank": 4,
-        "chunk_id": "test.pdf_3_1",
-        "modality": "table",
-        "page": 3,
-        "score": 0.706
-      },
-      {
-        "rank": 5,
         "chunk_id": "test.pdf_1_1",
         "modality": "text",
         "page": 1,
-        "score": 0.704
+        "score": 0.56
+      },
+      {
+        "rank": 3,
+        "chunk_id": "test.pdf_1_2",
+        "modality": "text",
+        "page": 1,
+        "score": 0.519
+      },
+      {
+        "rank": 4,
+        "chunk_id": "test.pdf_3_0",
+        "modality": "text",
+        "page": 3,
+        "score": 0.457
+      },
+      {
+        "rank": 5,
+        "chunk_id": "test.pdf_2_0",
+        "modality": "text",
+        "page": 2,
+        "score": 0.414
       }
     ],
-    "answer": "The flowchart describes the architecture of a transformer model, which includes the encoder and decoder blocks. Here is a simplified explanation of how these blocks function within the overall framework:\n\n1. **Input and Output Embeddings**:\n   - The first step involves converting the input and output sequences into vectors. This process is achieved through embedding layers. The embedding of the input sequence is typically shifted to the left and then fed into the encoder block.\n\n2. **Encoder Block**:\n   - The encoder block performs the bulk of the processing for the input sequence. It consists of a series of encoder layers. Each layer includes multi-headed self-attention and feed-forward neural network (FFN) sub-layers. These layers are applied across all tokens in the input sequence.\n   - The encoder layer updates the representation of each input token in consideration of all other tokens in the sequence. This is enabled by positional encodings that are added to the input embeddings to provide information about the order of the tokens in the sequence.\n   - After processing through the encoder layers, the output is passed to the decoder block.\n\n3. **Decoder Block**:\n   - The decoder block is responsible for building an output sequence. It consists of a series of decoder layers. Each decoder layer receives inputs from the encoder block and, in addition, from the previous decoder layer's output.\n   - Decoder layers are also composed of multi-headed self-attention and feed-forward neural network (FFN) sub-layers. The multi-headed self-attention helps the decoder focus on relevant parts of the encoded input sequence during the process of generating each output token.\n   - The output from the decoder layers is generated token by token, starting from an initial start-of-sequence token. Each generated token is fed back into the decoder as it continues to generate the next token.\n\nEach block in the flowchart illustrates the flow of data through the model, from the input sequence to the encoded representation, and finally to the generated output sequence. This design leverages attention mechanisms and skip connections to enable parallel computing and reduce the memory burden compared to recurrent neural networks and convolutional neural networks.",
-    "image_rank": 1
+    "answer": "The flowchart depicts the architecture of a transformer model with an emphasis on its encoder and decoder components. In the context of this diagram, the encoder and decoder blocks are interconnected through a series of layers that facilitate the processing of input and output sequences in natural language processing tasks.\n\n### Encoder Block:\n\nThe encoder block is composed of a stack of N=6 identical layers, where N represents the number of layers. Each layer within the encoder consists of two sub-layers. These sub-layers are designed to handle both the input sequence and the output sequence independently, each focusing on its specific task.\n\n1. **Self-Attention Mechanism (First Sub-Layer)**: Each encoder layer begins with a multi-head self-attention mechanism, which is responsible for attending to different parts of the input sequence to capture long-range dependencies and context. This self-attention mechanism allows the model to dynamically decide which parts of the input are most relevant to the prediction and integrates information by focusing on these elements.\n\n2. **Position-wise Fully Connected Feed-Forward Network (Second Sub-Layer)**: Following the self-attention layer, a simple, position-wise fully connected feed-forward network is used to apply further transformations to the information extracted by the self-attention mechanism. This network typically involves two fully connected layers with a non-linear activation function (such as ReLU) and finally normalizes the output through residual learning and layer normalization.\n\n### Decoder Block:\n\nThe decoder block is also structured around a set of N=6 identical layers, similar to the encoder block. These layers serve the purpose of processing the output sequence and applying transformations to generate the final result. The information from the encoder is passed through each layer of the decoder to condition the generation process.\n\n1. **Self-Attention Mechanism**: Each decoder layer begins with a multi-head self-attention mechanism which allows the decoder to attend to earlier parts of the decoded output sequence (i.e., the information generated so far and incorporated from the encoder) to facilitate context-aware generation. This self-attention ensures that the decoder can generate the word or part of speech most relevant to the ongoing sequence by attending to previously generated parts of the output.\n\n2. **Cross-Attention Mechanism with Encoder Output**: Following the decoder self-attention, cross-attention mechanism is employed. The decoder layer's self-attention output is combined with the information from the encoder through the cross-attention mechanism to further enhance the generation process. The cross-attention helps the decoder to reference the encoder's output to ensure coherent and contextually relevant sequence generation.\n\n3. **Position-wise Fully Connected Feed-Forward Network**: Finally, a position-wise fully connected feed-forward network is used, similar to that in the encoder, to perform further computations on the output generated by the attention mechanisms, incorporating non-linear transformations to refine the final output.\n\nThese two self-attention mechanisms, cross-attention, and position-wise fully connected feed-forward networks are sequentially arranged at each layer of the encoder and decoder to handle both sequence-level and word-level dependencies, leading to a more effective and efficient information processing for the transformer model.\n\n### In summary:\n- **Encoder Block**: It comprises N=6 layers each containing a self-attention mechanism followed by a fully connected feed-forward network, repeated through residual connections and layer normalization.\n- **Decoder Block**: Similarly structured with N=6 layers, it begins with self-attention and cross-attention mechanisms followed by a fully connected feed-forward network. \n\nEach of these sub-layers processes the information to create a sequence of meaningful outputs which are interdependent for the task of natural language processing."
   },
   {
     "query_modality": "text",
@@ -177,41 +173,40 @@
     "top_chunks": [
       {
         "rank": 1,
-        "chunk_id": "test.pdf_1_1",
+        "chunk_id": "test.pdf_1_3",
         "modality": "text",
         "page": 1,
-        "score": 0.746
+        "score": -2.825
       },
       {
         "rank": 2,
-        "chunk_id": "test.pdf_3_1",
-        "modality": "table",
-        "page": 3,
-        "score": 0.723
-      },
-      {
-        "rank": 3,
-        "chunk_id": "test.pdf_2_2",
-        "modality": "text",
-        "page": 2,
-        "score": 0.72
-      },
-      {
-        "rank": 4,
-        "chunk_id": "test.pdf_2_5",
-        "modality": "text",
-        "page": 2,
-        "score": 0.718
-      },
-      {
-        "rank": 5,
         "chunk_id": "test.pdf_1_2",
         "modality": "text",
         "page": 1,
-        "score": 0.709
+        "score": -5.129
+      },
+      {
+        "rank": 3,
+        "chunk_id": "test.pdf_2_6",
+        "modality": "text",
+        "page": 2,
+        "score": -5.816
+      },
+      {
+        "rank": 4,
+        "chunk_id": "test.pdf_1_0",
+        "modality": "image",
+        "page": 1,
+        "score": -6.06
+      },
+      {
+        "rank": 5,
+        "chunk_id": "test.pdf_2_1",
+        "modality": "table",
+        "page": 2,
+        "score": -10.166
       }
     ],
-    "answer": "The attention mechanism is a core component of Transformer models, which stands different from Recurrent Neural Networks (RNNs) in several key aspects:\n\n1. **Architecture of Attention Mechanism**:\n   - In the Transformer architecture, there are two main forms of self-attention: **self-attention in the encoder** and **self-attention in the decoder**. The self-attention mechanism in the encoder allows you to weight one part of the input sequence based on another part, without the order constraints of having to pass through the sequence sequentially. This is enabled by the fully connected layers that combine queries, keys, and values, followed by a softmax function to compute weights.\n   - The decoder has two main types of self-attention as well: **self-attention within the decoder** and **cross-attention**. Self-attention within the decoder captures relationships between different points in the target sequence, while cross-attention allows it to read information from the encoder's representation of the input sequence. This mechanism breaks the need to maintain a \"state\" of the input sequence in successive timesteps as is the case in RNNs.\n\n2. **Differences from RNNs**:\n   - **Sequential Processing**:\n     - Unlike RNNs, where a node (cell) processes input data at each step t by updating its own internal values, Transformer has no recurrence or convolution operations. Instead, it uses a parallel structure where the computation is done on the embeddings of the entire input sequence at once. This allows the model to process the entire input and output sequences in parallel, leading to an efficient multi-head parallel processing of the input at each layer.\n   - **Incorporation of Positional Information**:\n     - Unlike RNNs that maintain a single hidden state that carries positional information forward during processing, Transformers inject positional information into the embedding layer at the bottom of both the encoder and decoder stacks. This positional information is crucial for the model to understand the order of tokens in the sequence, which is directly encoded into the embeddings using sinusoidal functions (sinusoidal positional encoding). This allows the model to handle non-autoregressive data, meaning it doesn't need to process the current token or its position relative to past tokens as a series of independent steps.\n   - **Parallel and Distributed Computing**:\n     - Transformers, with their parallel architecture, can easily be extended and scaled in a distributed computing environment, allowing for larger models and more data.\n\nIn summary, while RNNs update internal state at each timestamp and must maintain the order of the sequence through recurrent operations, Transformers model the entire sequence at once by creating a positional encoding layer that embeds position information into the data before self-attention is applied. This fundamentally differences the data processing method from a sequential, step-by-step learning approach to a parallel, multi-head self-attention-based one.",
-    "image_rank": 12
+    "answer": "The attention mechanism in a transformer model is a method for allowing each computation step to focus on the most relevant data. Specifically, an attention function maps a query and a set of key-value pairs to an output, where: \n\n- The query is a vector,\n- The keys and values are vectors pairs,\n- The output is a weighted sum computed by each element of the key multiplying by the corresponding element from the value vector, then summed together based on the weights computed by the attention mechanism.\n\nIn contrast, RNNs (Recurrent Neural Networks) pass information sequentially through their layers. Since RNNs always have at least one parameter that represents the context of the sequence at a previous time step, they tend to pay more attention to the entire history of the input rather than a specific part of it. This inherent temporal link means RNNs can be less flexible in focusing on specific aspects of the input compared to the parallel-structure attention mechanism in transformers.\n\nKey differences include:\n\n1. **Temporal Link:** RNNs connect historical states in their sequence of neurons, thus implicitly capturing the temporal aspect of sequence data where later data points may directly affect earlier steps. In contrast, transformer-based systems process all parts of the input simultaneously using self-attention mechanisms.\n\n2. **Flexibility and Parallellism:** Transformer self-attention mechanisms are inherently parallelizable and can focus on different parts of the input independently. This allows the model to handle contextual information in multiple ways, which RNNs struggle with when dealing with very long sequences.\n\n3. **Computation:** Transformers process the data in parallel without a direct connection across the inputs, allowing for computations across all parts of the input sequences at once, whereas RNNs process data sequentially and thus are only able to handle the information at each time step one at a time.\n\nIn summary, while RNNs provide a sequential processing of data that can naturally align with time-series data and provide more context to the model at each time step, self-attention in transformer models offers a more flexible approach that enables the model to focus on subsets of information simultaneously, making them well-suited for long sequences and tasks that benefit from the analysis of all input information within a batch."
   }
 ]
