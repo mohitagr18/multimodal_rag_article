@@ -308,22 +308,22 @@ flowchart LR
 ### 5.3 Why Modality Boosting?
 
 ```mermaid
-flowchart LR
+flowchart TD
     subgraph Problem["Before Boosting"]
         direction TB
-        P1["Query:<br/>What does the<br/>architecture diagram show?"]
-        P2["Top results:<br/>1. test.pdf_1_2 TEXT 0.852<br/>2. test.pdf_3_1 TABLE 0.847<br/>3. test.pdf_3_2 TEXT 0.847<br/>...<br/>7. test.pdf_1_0 IMAGE 0.837"]
-        P3["Problem:<br/>IMAGE ranked #7<br/>despite diagram query"]
+        P1["Diagram query"]
+        P2["Top-3 text/table results"]
+        P3["IMAGE only #7<br/>score 0.837"]
 
         P1 --> P2 --> P3
     end
 
     subgraph Solution["After Boosting"]
         direction TB
-        S1["Query:<br/>What does the<br/>architecture diagram show?"]
-        S2["Visual keyword detected:<br/>diagram"]
-        S3["IMAGE score:<br/>0.837 x 1.35 = 1.130"]
-        S4["Top results:<br/>1. test.pdf_1_0 IMAGE 1.130<br/>2. test.pdf_1_2 TEXT 0.852<br/>3. test.pdf_3_1 TABLE 0.847<br/>4. test.pdf_3_2 TEXT 0.847"]
+        S1["Keyword: diagram"]
+        S2["Boost IMAGE<br/>0.837 x 1.35"]
+        S3["New score 1.130"]
+        S4["IMAGE moves to #1"]
 
         S1 --> S2 --> S3 --> S4
     end
