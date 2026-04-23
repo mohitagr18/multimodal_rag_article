@@ -305,28 +305,41 @@ flowchart LR
     Keywords -.-> Note
 ```
 
-### 5.3 Why Modality Boosting?
+### 5.3 Visual Query Detection & Boosting
 
 ```mermaid
 flowchart TD
-    subgraph Problem["Before Boosting"]
-        direction TB
-        P1["Diagram query"]
-        P2["Top-3 text/table results"]
-        P3["IMAGE only #7<br/>score 0.837"]
+    Q[Query] --> Token[Tokenize + lowercase]
+    Token --> KW{Any keyword matches<br/>visual_keywords?}
 
-        P1 --> P2 --> P3
-    end
+    KW -->|Yes| Visual[Visual Query Detected]
+    Visual --> Boost[For each result<br/>modality == image?<br/>score = score × 1.35]
+    Boost --> Skip[Skip cross-encoder<br/>use boosted scores]
+    Skip --> Top4[Select top 4]
 
-    subgraph Solution["After Boosting"]
-        direction TB
-        S1["Keyword: diagram"]
-        S2["Boost IMAGE<br/>0.837 x 1.35"]
-        S3["New score 1.130"]
-        S4["IMAGE moves to #1"]
+    KW -->|No| NonVisual[Non-Visual Query]
+    NonVisual --> Rerank[Cross-encoder rerank<br/>ms-marco-MiniLM-L-6-v2]
+    Rerank --> Sort[Sort by rerank score]
+    Sort --> Top4
 
-        S1 --> S2 --> S3 --> S4
-    end
+    KW -.-- Note[visual_keywords:<br/>diagram, flowchart,<br/>figure, image, chart,<br/>visual, illustration,<br/>picture, encoder,<br/>decoder]
+
+    Note -.-> Visual
+```
+
+**Why It Works:**
+
+| Scenario | Query Type | Behavior |
+|----------|------------|----------|
+| "How does the **encoder** work?" | Visual | Boost image scores ×1.35, skip cross-encoder |
+| "What are the **results** in Table 2?" | Non-Visual | Use cross-encoder reranking |
+| "Explain the **flowchart**" | Visual | Boost image scores ×1.35, skip cross-encoder |
+
+**Score Example:**
+```
+Query: "diagram of transformer"
+Initial: IMAGE #7, score 0.837 (ranked 7th)
+After boost: 0.837 × 1.35 = 1.130 → moves to #1
 ```
 
 ---
